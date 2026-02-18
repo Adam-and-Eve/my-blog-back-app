@@ -17,7 +17,7 @@ public abstract class BaseEntityObject
     /**
      * Уникальный идентификатор сущности.
      **/
-    private final UUID id;
+    private Long id;
 
     /**
      * Дата и время создания объекта.
@@ -35,13 +35,13 @@ public abstract class BaseEntityObject
 
     public BaseEntityObject()
     {
-        this.id = UUID.randomUUID();
+        this.id = 0L;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = createdAt;
     }
 
     public BaseEntityObject(
-            final UUID id,
+            final Long id,
             final LocalDateTime createdAt,
             final LocalDateTime updatedAt
     )
@@ -63,7 +63,7 @@ public abstract class BaseEntityObject
      * @return Уникальный идентификатор сущности.
      * </return>
      **/
-    public final UUID getId()
+    public final Long getId()
     {
         return this.id;
     }
@@ -97,6 +97,20 @@ public abstract class BaseEntityObject
     // endregion
 
     // region Methods
+
+    /**
+     * <summary>
+     * Изменяет идентификатор сущности и обновляет метку времени изменения.
+     * Используется преимущественно при сохранении объекта в хранилище или маппинге.
+     * </summary>
+     * @param id Новый идентификатор сущности.
+     **/
+    public void changeId(final Long id)
+    {
+        this.id = id;
+
+        markUpdatedAt();
+    }
 
     /**
      * <summary>
