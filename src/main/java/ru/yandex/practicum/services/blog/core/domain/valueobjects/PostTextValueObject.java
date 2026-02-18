@@ -12,7 +12,7 @@ import java.util.Objects;
  * в соответствии с инвариантами доменной модели.
  * </summary>
  **/
-public class PostTextValueObject extends BaseEntityObject
+public final class PostTextValueObject extends BaseEntityObject
 {
     // region Fields
 

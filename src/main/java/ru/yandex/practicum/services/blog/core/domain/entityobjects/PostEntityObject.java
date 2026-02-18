@@ -13,7 +13,7 @@ import java.util.Objects;
  * Содержит контент публикации, метаданные и статистику взаимодействия.
  * </summary>
  **/
-public class PostEntityObject extends BaseEntityObject
+public final class PostEntityObject extends BaseEntityObject
 {
     // region Fields
 
