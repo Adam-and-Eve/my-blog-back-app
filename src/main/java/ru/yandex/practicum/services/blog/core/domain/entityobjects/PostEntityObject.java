@@ -1,10 +1,11 @@
 package ru.yandex.practicum.services.blog.core.domain.entityobjects;
 
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEntityObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * <summary>
@@ -22,9 +23,14 @@ public final class PostEntityObject extends BaseEntityObject
     private PostTitleValueObject title;
 
     /**
-     * Объект-значение (Value Object), представляющий заголовок публикации.
+     * Объект-значение (Value Object), представляющий сообщение публикации.
      **/
     private PostTextValueObject text;
+
+    /**
+     * Список объектов-значений (Value Object), представляющих теги публикации.
+     **/
+    private final Set<PostTagValueObject> tags;
 
     /**
      * Количество лайков публикации.
@@ -46,6 +52,8 @@ public final class PostEntityObject extends BaseEntityObject
         this.title = Objects.requireNonNull(title);
 
         this.text = Objects.requireNonNull(text);
+
+        this.tags = new HashSet<>();
 
         this.likesCount = Objects.requireNonNull(likesCount);
     }
@@ -86,6 +94,20 @@ public final class PostEntityObject extends BaseEntityObject
     public final synchronized PostTextValueObject getText()
     {
         return text;
+    }
+
+
+    /**
+     * <summary>
+     * Возвращает список тегов публикации.
+     * </summary>
+     * <return>
+     * @return Список объектов-значений (Value Object) тегов публикации.
+     * </return>
+     **/
+    public final synchronized Set<PostTagValueObject> getTags()
+    {
+        return Set.copyOf(tags);
     }
 
     /**
@@ -135,6 +157,40 @@ public final class PostEntityObject extends BaseEntityObject
         {
             this.text = text;
 
+            super.markUpdatedAt();
+        }
+    }
+
+    /**
+     * <summary>
+     * Добавляет тег к публикации, если его там еще нет.
+     * При изменении состояния обновляет метку времени последнего изменения.
+     * </summary>
+     * @param tag Новый тег для добавления.
+     **/
+    public final synchronized void addTag(final PostTagValueObject tag)
+    {
+        Objects.requireNonNull(tag);
+
+        if (tags.add(tag))
+        {
+            super.markUpdatedAt();
+        }
+    }
+
+    /**
+     * <summary>
+     * Удаляет тег из публикации, если он там уже есть.
+     * При изменении состояния обновляет метку времени последнего изменения.
+     * </summary>
+     * @param tag Тег для удаления.
+     **/
+    public final synchronized void removeTag(final PostTagValueObject tag)
+    {
+        Objects.requireNonNull(tag);
+
+        if (tags.remove(tag))
+        {
             super.markUpdatedAt();
         }
     }
