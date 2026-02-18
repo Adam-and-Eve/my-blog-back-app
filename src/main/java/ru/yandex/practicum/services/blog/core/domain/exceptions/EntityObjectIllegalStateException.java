@@ -8,7 +8,7 @@ import java.io.Serial;
  * допустимого состояния сущности (Entity Object).
  * </summary>
  **/
-public class EntityObjectIllegalStateException extends EntityObjectException
+public final class EntityObjectIllegalStateException extends EntityObjectException
 {
     // region Fields
 
