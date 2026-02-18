@@ -1,7 +1,6 @@
 package ru.yandex.practicum.services.blog.core.domain.entityobjects;
 
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.exceptions.ValueObjectIsInvalidException;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
@@ -27,13 +26,19 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     private PostTextValueObject text;
 
+    /**
+     * Количество лайков публикации.
+     **/
+    private Long likesCount;
+
     // endregion
 
     // region Constructors
 
     public PostEntityObject(
             PostTitleValueObject title,
-            PostTextValueObject text
+            PostTextValueObject text,
+            Long likesCount
     )
     {
         super();
@@ -41,6 +46,16 @@ public final class PostEntityObject extends BaseEntityObject
         this.title = Objects.requireNonNull(title);
 
         this.text = Objects.requireNonNull(text);
+
+        this.likesCount = Objects.requireNonNull(likesCount);
+    }
+
+    public PostEntityObject(
+            PostTitleValueObject title,
+            PostTextValueObject text
+    )
+    {
+        this(title, text, 0L);
     }
 
     // endregion
@@ -55,7 +70,7 @@ public final class PostEntityObject extends BaseEntityObject
      * @return Объект-значение заголовка.
      * </return>
      **/
-    public final PostTitleValueObject getTitle()
+    public final synchronized PostTitleValueObject getTitle()
     {
         return title;
     }
@@ -68,9 +83,22 @@ public final class PostEntityObject extends BaseEntityObject
      * @return Объект-значение сообщения.
      * </return>
      **/
-    public final PostTextValueObject getText()
+    public final synchronized PostTextValueObject getText()
     {
         return text;
+    }
+
+    /**
+     * <summary>
+     * Возвращает количество лайков публикации.
+     * </summary>
+     * <return>
+     * @return Количество лайков публикации.
+     * </return>
+     **/
+    public final synchronized Long getLikesCount()
+    {
+        return likesCount;
     }
 
     // endregion
@@ -84,7 +112,7 @@ public final class PostEntityObject extends BaseEntityObject
      * </summary>
      * @param title Новый заголовок публикации.
      **/
-    public final void changeTitle(final PostTitleValueObject title)
+    public final synchronized void changeTitle(final PostTitleValueObject title)
     {
         if (!this.title.equals(title))
         {
@@ -101,11 +129,43 @@ public final class PostEntityObject extends BaseEntityObject
      * </summary>
      * @param text Новое сообщение публикации.
      **/
-    public final void changeText(final PostTextValueObject text)
+    public final synchronized void changeText(final PostTextValueObject text)
     {
         if (!this.text.equals(text))
         {
             this.text = text;
+
+            super.markUpdatedAt();
+        }
+    }
+
+    /**
+     * <summary>
+     * Увеличивает количество лайков публикации на единицу.
+     * При изменении состояния обновляет метку времени последнего изменения.
+     * </summary>
+     **/
+    public final synchronized void like()
+    {
+        if (this.likesCount < Long.MAX_VALUE)
+        {
+            this.likesCount++;
+
+            super.markUpdatedAt();
+        }
+    }
+
+    /**
+     * <summary>
+     * Уменьшает количество лайков публикации на единицу, если текущее значение больше нуля.
+     * При изменении состояния обновляет метку времени последнего изменения.
+     * </summary>
+     **/
+    public final synchronized void unlike()
+    {
+        if (this.likesCount > 0)
+        {
+            this.likesCount--;
 
             super.markUpdatedAt();
         }

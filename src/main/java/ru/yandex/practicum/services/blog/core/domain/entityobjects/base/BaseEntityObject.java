@@ -63,7 +63,7 @@ public abstract class BaseEntityObject
      * @return Уникальный идентификатор сущности.
      * </return>
      **/
-    public final Long getId()
+    public final synchronized Long getId()
     {
         return this.id;
     }
@@ -76,7 +76,7 @@ public abstract class BaseEntityObject
      * @return Дата и время создания сущности.
      * </return>
      **/
-    public final LocalDateTime getCreatedAt()
+    public final synchronized LocalDateTime getCreatedAt()
     {
         return this.createdAt;
     }
@@ -89,7 +89,7 @@ public abstract class BaseEntityObject
      * @return Дата и время последнего изменения сущности.
      * </return>
      **/
-    public final LocalDateTime getUpdatedAt()
+    public final synchronized LocalDateTime getUpdatedAt()
     {
         return this.updatedAt;
     }
@@ -106,7 +106,7 @@ public abstract class BaseEntityObject
      * @throws EntityObjectIllegalStateException
      * Выбрасывается, если идентификатор уже был установлен.
      **/
-    public void changeId(final Long id)
+    public synchronized void changeId(final Long id)
     {
         if (this.id != null)
         {
@@ -128,7 +128,7 @@ public abstract class BaseEntityObject
      * Должен вызываться при любом изменении внутреннего состояния сущности.
      * </summary>
      **/
-    public void markUpdatedAt()
+    public synchronized void markUpdatedAt()
     {
         this.updatedAt = LocalDateTime.now();
     }
