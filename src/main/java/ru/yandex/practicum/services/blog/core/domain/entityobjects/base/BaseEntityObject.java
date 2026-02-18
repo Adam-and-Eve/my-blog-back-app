@@ -1,8 +1,8 @@
 package ru.yandex.practicum.services.blog.core.domain.entityobjects.base;
 
+import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectIllegalStateException;
+
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * <summary>
@@ -35,7 +35,7 @@ public abstract class BaseEntityObject
 
     public BaseEntityObject()
     {
-        this.id = 0L;
+        this.id = null;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = createdAt;
     }
@@ -100,16 +100,26 @@ public abstract class BaseEntityObject
 
     /**
      * <summary>
-     * Изменяет идентификатор сущности и обновляет метку времени изменения.
-     * Используется преимущественно при сохранении объекта в хранилище или маппинге.
+     * Устанавливает идентификатор сущности.
      * </summary>
      * @param id Новый идентификатор сущности.
+     * @throws EntityObjectIllegalStateException
+     * Выбрасывается, если идентификатор уже был установлен.
      **/
     public void changeId(final Long id)
     {
-        this.id = id;
+        if (this.id != null)
+        {
+            throw new EntityObjectIllegalStateException(
+                    "Идентификатор сущности уже установлен",
+                    "id");
+        }
+        else
+        {
+            this.id = id;
 
-        markUpdatedAt();
+            markUpdatedAt();
+        }
     }
 
     /**
@@ -125,8 +135,7 @@ public abstract class BaseEntityObject
 
     /**
      * <summary>
-     * Сравнивает текущий экземпляр с другим объектом на предмет равенства.
-     * Реализует логику идентичности на основе уникального идентификатора и даты создания.
+     * Сравнивает текущую сущность с другим объектом на предмет идентичности.
      * </summary>
      * @param obj Объект для сравнения.
      * @return true, если объекты идентичны; иначе false.
@@ -139,26 +148,31 @@ public abstract class BaseEntityObject
             return true;
         }
 
-        if (obj instanceof BaseEntityObject other)
+        if (!(obj instanceof BaseEntityObject other))
         {
-            return Objects.equals(this.id, other.id) &&
-                   Objects.equals(this.createdAt, other.createdAt);
+            return false;
         }
 
-        return false;
+        if (this.id == null || other.id == null)
+        {
+            return false;
+        }
+
+        return this.id.equals(other.id);
     }
 
     /**
      * <summary>
-     * Вычисляет хэш-код объекта для использования в хеш-таблицах.
-     * Базируется на неизменяемых полях Id и CreatedAt для обеспечения стабильности хэша.
+     * Вычисляет хэш-код сущности.
      * </summary>
      * @return Целочисленное значение хэш-кода.
      **/
     @Override
-    public int  hashCode()
+    public int hashCode()
     {
-        return Objects.hash(id, createdAt);
+        return (id != null)
+                ? id.hashCode()
+                : System.identityHashCode(this);
     }
 
     // endregion
