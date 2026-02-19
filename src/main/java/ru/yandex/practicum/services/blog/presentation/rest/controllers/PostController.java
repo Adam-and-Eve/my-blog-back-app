@@ -1,9 +1,11 @@
 package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
@@ -26,15 +28,21 @@ public final class PostController
 {
     // region Fields
 
-
+    /**
+     * Сервис для выполнения операций над публикациями.
+     **/
+    private final IPostService postService;
 
     // endregion
 
     // region Constructors
 
-    public PostController()
+    @Autowired
+    public PostController(
+            IPostService postService
+    )
     {
-
+        this.postService = postService;
     }
 
     // endregion
