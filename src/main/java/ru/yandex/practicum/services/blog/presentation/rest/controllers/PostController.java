@@ -4,7 +4,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
+import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,23 +80,7 @@ public final class PostController
     {
 
         // Тестовые данные для проверки структуры JSON.
-        var postOne = new PostResponseDto(
-                1L,
-                "Название поста 1",
-                "Текст поста в формате Markdown...",
-                List.of("tag1, tag2"),
-                5L,
-                1L
-        );
-
-        var postTwo = new PostResponseDto(
-                2L,
-                "Название поста 2",
-                "Текст поста в формате Markdown...",
-                List.of(),
-                1L,
-                5L
-        );
+        var tempPosts = getTestPosts();
 
         // Имитация логики пагинации на основе обязательных параметров.
         var lastPage = 3L;
@@ -98,13 +88,34 @@ public final class PostController
         var hasNext = pageNumber < lastPage;
 
         var responseDto = new PostsPageResponseDto(
-                List.of(postOne, postTwo),
+                tempPosts,
                 hasPrev,
                 hasNext,
                 lastPage
         );
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    private final List<PostResponseDto> getTestPosts()
+    {
+        var result = new ArrayList<PostResponseDto>();
+
+        for (var postId = 0L; postId < 10L; postId++)
+        {
+            var tempPost = new PostEntityObject(
+                    new PostTitleValueObject("Название поста " + postId),
+                    new PostTextValueObject("Текст поста в формате markdown")
+            );
+
+            tempPost.addTag(new PostTagValueObject("tag" + postId));
+
+            tempPost.changeId(postId);
+
+            result.add(PostMapper.mapToResponseDto(tempPost));
+        }
+
+        return result;
     }
 
     /**
