@@ -56,7 +56,9 @@ public final class PostMapper
             return new PostResponseDto(
                     post.getId(),
                     post.getTitle().getValue(),
-                    post.getText().getValue(),
+                    post.getText().getValue().length() > 128
+                        ? post.getText().getValue().substring(0, 128) + "..."
+                        : post.getText().getValue(),
                     post.getTags().stream()
                             .map(PostTagValueObject::getValue)
                             .collect(Collectors.toList()),

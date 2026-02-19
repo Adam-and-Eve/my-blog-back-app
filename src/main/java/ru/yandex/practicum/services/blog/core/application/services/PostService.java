@@ -2,6 +2,7 @@ package ru.yandex.practicum.services.blog.core.application.services;
 
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
@@ -10,7 +11,9 @@ import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueO
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <summary>
@@ -65,20 +68,150 @@ public final class PostService implements IPostService
             Long pageSize
     )
     {
-        // Получаем доменные сущности (пока моки, позже тут будет вызов репозитория).
-        var posts = getTestPosts();
+        /*
+         * Проверяем корректность номера страницы.
+         */
+        if (pageNumber == null ||
+            pageNumber < 1)
+        {
+            throw new ApplicationValidationException(
+                    "Номер страницы должен быть больше или равен 1",
+                    "pageNumber"
+            );
+        }
 
-        // Рассчитываем метаданные пагинации.
-        var lastPage = 3L;
-        var hasPrev = pageNumber > 1;
-        var hasNext = pageNumber < lastPage;
+        /*
+         * Проверяем корректность размера страницы.
+         */
+        if (pageSize == null ||
+            pageSize < 1)
+        {
+            throw new ApplicationValidationException(
+                    "Размер страницы должен быть больше или равен 1",
+                    "pageSize"
+            );
+        }
 
-        // Формируем и возвращаем итоговый DTO.
+        /*
+         * Нормализуем строку поиска.
+         */
+        search = search == null ? "" : search.trim();
+
+        /*
+         * Генерируем тестовые данные (имитация базы данных).
+         */
+        var posts = generateAllTestPosts();
+
+        /*
+         * Разделяем строку поиска по любому количеству пробелов
+         * и удаляем пустые элементы.
+         */
+        var searchParts = search.isEmpty()
+                ? List.<String>of()
+                : Arrays.stream(search.split("\\s+"))
+                        .filter(s -> !s.isBlank())
+                        .toList();
+
+        /*
+         * Формируем список тегов для фильтрации.
+         * Теги начинаются с '#'.
+         */
+        var tagFilters = searchParts
+                .stream()
+                .filter(s -> s.startsWith("#") && s.length() > 1)
+                .map(s -> s.substring(1).toLowerCase())
+                .toList();
+
+
+        /*
+         * Формируем строки поиска по названию.
+         * Все слова без '#' объединяются через пробел.
+         */
+        var titleQuery = searchParts
+                .stream()
+                .filter(s -> !s.startsWith("#"))
+                .collect(Collectors.joining(" "))
+                .toLowerCase();
+
+        /*
+         * Фильтруем посты:
+         * - по тегам (логическое "И");
+         * - по подстроке в названии (логическое "И").
+         */
+        var filteredPosts = posts
+                .stream()
+                .filter(post ->
+                {
+                    /*
+                     * Получаем множество тегов поста.
+                     */
+                    var postTags = post.getTags()
+                            .stream()
+                            .map(PostTagValueObject::getValue)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.toSet());
+
+                    /*
+                     * Проверяем наличие всех тегов из запроса.
+                     */
+                    var matchesTags = tagFilters.isEmpty() ||
+                            postTags.containsAll(tagFilters);
+
+                    /*
+                     * Проверяем вхождение строки из запроса в название поста.
+                     */
+                    var matchesTitle = titleQuery.isEmpty() ||
+                            post.getTitle()
+                                .getValue()
+                                .toLowerCase()
+                                .contains(titleQuery);
+
+                    return matchesTags && matchesTitle;
+                })
+                .toList();
+
+        /*
+         * Вычисляем общее количество найденных постов.
+         */
+        var totalPosts = filteredPosts.size();
+
+        /*
+         * Вычисляем количество страниц.
+         * Если результатов нет - страниц 0.
+         */
+        var lastPage = totalPosts == 0
+                ? 0
+                : (totalPosts + pageSize.intValue() - 1) / pageSize.intValue();
+
+        /*
+         * Определяем объект для хранения постов на странице.
+         */
+        var pageContent = new ArrayList<PostResponseDto>();
+
+        /*
+         * Формируем содержимое страницы,
+         * если запрошенная страница входит в допустимый диапазон.
+         */
+        if (lastPage > 0 &&
+            pageNumber <= lastPage)
+        {
+            var fromIndex = (int) ((pageNumber - 1) * pageSize);
+            var toIndex = Math.min(fromIndex + pageSize.intValue(), totalPosts);
+
+            pageContent = filteredPosts.subList(fromIndex, toIndex)
+                    .stream()
+                    .map(PostMapper::mapToResponseDto)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        /*
+         * Формируем итоговый DTO.
+         */
         return new PostsPageResponseDto(
-                posts,
-                hasPrev,
-                hasNext,
-                lastPage
+                pageContent,
+                pageNumber > 1 && lastPage > 0,
+                pageNumber < lastPage,
+                (long) lastPage
         );
     }
 
@@ -87,21 +220,46 @@ public final class PostService implements IPostService
      * Вспомогательный метод для генерации тестовых данных.
      * </summary>
      **/
-    private List<PostResponseDto> getTestPosts()
+    private List<PostEntityObject> generateAllTestPosts()
     {
-        var result = new ArrayList<PostResponseDto>();
+        var result = new ArrayList<PostEntityObject>();
 
-        for (var postId = 0L; postId < 10L; postId++)
+        for (var postId = 1L; postId <= 100L; postId++)
         {
-            var tempPost = new PostEntityObject(
-                    new PostTitleValueObject("Название поста " + postId),
-                    new PostTextValueObject("Текст поста в формате markdown")
+            var post = new PostEntityObject(
+                    new PostTitleValueObject(
+                            "Пост номер " +
+                                   postId +
+                                   (postId % 2 == 0
+                                           ? " важный"
+                                           : "")),
+                    new PostTextValueObject(
+                            (postId % 2 == 0
+                                    ? "Это очень длинный текст поста, который должен " +
+                                      "быть обрезан маппером, потому что в нем явно " +
+                                      "больше сто двадцати восьми символов для " +
+                                      "проверки корректности работы логики " +
+                                      "обрезки строк..."
+                                    : "Это обычный текст поста, который не " +
+                                      "должен быть обрезан."))
             );
 
-            tempPost.addTag(new PostTagValueObject("tag" + postId));
-            tempPost.changeId(postId);
+            post.addTag(
+                    new PostTagValueObject(
+                            postId % 2 == 0
+                                    ? "java"
+                                    : "spring"));
 
-            result.add(PostMapper.mapToResponseDto(tempPost));
+            if (postId % 3 == 0)
+            {
+                post.addTag(
+                        new PostTagValueObject(
+                                "news"));
+            }
+
+            post.changeId(postId);
+
+            result.add(post);
         }
 
         return result;
