@@ -87,43 +87,11 @@ public final class PostController
     )
     {
 
-        // Тестовые данные для проверки структуры JSON.
-        var tempPosts = getTestPosts();
+        // Делегируем выполнение бизнес-логики сервису слоя Application.
+        var responseDto = postService.getPostsPage(search, pageNumber, pageSize);
 
-        // Имитация логики пагинации на основе обязательных параметров.
-        var lastPage = 3L;
-        var hasPrev = pageNumber > 1;
-        var hasNext = pageNumber < lastPage;
-
-        var responseDto = new PostsPageResponseDto(
-                tempPosts,
-                hasPrev,
-                hasNext,
-                lastPage
-        );
-
+        // Возвращаем результат клиенту.
         return ResponseEntity.ok(responseDto);
-    }
-
-    private final List<PostResponseDto> getTestPosts()
-    {
-        var result = new ArrayList<PostResponseDto>();
-
-        for (var postId = 0L; postId < 10L; postId++)
-        {
-            var tempPost = new PostEntityObject(
-                    new PostTitleValueObject("Название поста " + postId),
-                    new PostTextValueObject("Текст поста в формате markdown")
-            );
-
-            tempPost.addTag(new PostTagValueObject("tag" + postId));
-
-            tempPost.changeId(postId);
-
-            result.add(PostMapper.mapToResponseDto(tempPost));
-        }
-
-        return result;
     }
 
     /**
