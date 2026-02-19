@@ -27,8 +27,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")
 
-    implementation("org.springframework.data:spring-data-jdbc:3.3.0")
-
     implementation("org.springframework:spring-jdbc:7.0.3")
 
     implementation("com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11")

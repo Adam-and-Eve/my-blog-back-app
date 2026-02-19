@@ -2,6 +2,7 @@ package ru.yandex.practicum.services.blog.core.application.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.services.PostService;
 
@@ -38,9 +39,9 @@ public class ApplicationConfiguration
      * @return Реализация сервиса постов.
      **/
     @Bean
-    public IPostService postService()
+    public IPostService postService(final IPostRepository postRepository)
     {
-        return new PostService();
+        return new PostService(postRepository);
     }
 
     // endregion

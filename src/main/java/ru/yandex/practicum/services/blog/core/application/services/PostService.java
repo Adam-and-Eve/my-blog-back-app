@@ -1,8 +1,10 @@
 package ru.yandex.practicum.services.blog.core.application.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
+import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
@@ -24,14 +26,18 @@ public final class PostService implements IPostService
 {
     // region Fields
 
-
+    /*
+     * Репозиторий публикаций.
+     */
+    private final IPostRepository postRepository;
 
     // endregion
 
     // region Constructors
 
-    public PostService()
+    public PostService(final IPostRepository postRepository)
     {
+        this.postRepository = postRepository;
     }
 
     // endregion
@@ -101,6 +107,10 @@ public final class PostService implements IPostService
          * Генерируем тестовые данные (имитация базы данных).
          */
         var posts = generateAllTestPosts();
+
+        var check = postRepository.countAllPosts(search, List.of());
+
+        System.out.println("База ответила: " + check);
 
         /*
          * Разделяем строку поиска по любому количеству пробелов
