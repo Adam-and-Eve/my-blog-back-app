@@ -3,6 +3,7 @@ package ru.yandex.practicum.services.blog.core.domain.entityobjects.base;
 import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectIllegalStateException;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * <summary>
@@ -17,17 +18,17 @@ public abstract class BaseEntityObject
     /**
      * Уникальный идентификатор сущности.
      **/
-    private Long id;
+    private final Long id;
 
     /**
      * Дата и время создания объекта.
      **/
-    private final LocalDateTime createdAt;
+    private final OffsetDateTime createdAt;
 
     /**
      * Дата и время последнего изменения объекта.
      **/
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     // endregion
 
@@ -36,14 +37,14 @@ public abstract class BaseEntityObject
     public BaseEntityObject()
     {
         this.id = null;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = OffsetDateTime.now();
         this.updatedAt = createdAt;
     }
 
     public BaseEntityObject(
             final Long id,
-            final LocalDateTime createdAt,
-            final LocalDateTime updatedAt
+            final OffsetDateTime createdAt,
+            final OffsetDateTime updatedAt
     )
     {
         this.id = id;
@@ -76,7 +77,7 @@ public abstract class BaseEntityObject
      * @return Дата и время создания сущности.
      * </return>
      **/
-    public final synchronized LocalDateTime getCreatedAt()
+    public final synchronized OffsetDateTime getCreatedAt()
     {
         return this.createdAt;
     }
@@ -89,7 +90,7 @@ public abstract class BaseEntityObject
      * @return Дата и время последнего изменения сущности.
      * </return>
      **/
-    public final synchronized LocalDateTime getUpdatedAt()
+    public final synchronized OffsetDateTime getUpdatedAt()
     {
         return this.updatedAt;
     }
@@ -100,37 +101,13 @@ public abstract class BaseEntityObject
 
     /**
      * <summary>
-     * Устанавливает идентификатор сущности.
-     * </summary>
-     * @param id Новый идентификатор сущности.
-     * @throws EntityObjectIllegalStateException
-     * Выбрасывается, если идентификатор уже был установлен.
-     **/
-    public synchronized void changeId(final Long id)
-    {
-        if (this.id != null)
-        {
-            throw new EntityObjectIllegalStateException(
-                    "Идентификатор сущности уже установлен",
-                    "id");
-        }
-        else
-        {
-            this.id = id;
-
-            markUpdatedAt();
-        }
-    }
-
-    /**
-     * <summary>
      * Обновляет значение свойства UpdatedAt текущим системным временем.
      * Должен вызываться при любом изменении внутреннего состояния сущности.
      * </summary>
      **/
     public synchronized void markUpdatedAt()
     {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = OffsetDateTime.now();
     }
 
     /**

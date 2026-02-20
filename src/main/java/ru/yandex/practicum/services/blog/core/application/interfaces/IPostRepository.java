@@ -1,5 +1,6 @@
 package ru.yandex.practicum.services.blog.core.application.interfaces;
 
+import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 
 import java.util.List;
@@ -23,11 +24,8 @@ public interface IPostRepository
      * <summary>
      * Получение постраничного списка публикаций с учетом фильтрации и пагинации на стороне БД.
      * </summary>
-     * <param name="titleQuery">
-     * Подстрока для поиска в заголовке публикации (может быть пустой).
-     * </param>
-     * <param name="tagFilters">
-     * Список тегов для жесткой фильтрации (логическое "И").
+     * <param name="criteria">
+     * Объект с критериями для поиска публикаций.
      * </param>
      * <param name="offset">
      * Количество записей, которые нужно пропустить (для пагинации).
@@ -40,30 +38,23 @@ public interface IPostRepository
      * </return>
      **/
     public List<PostEntityObject> findAllPosts(
-            String titleQuery,
-            List<String> tagFilters,
-            Long offset,
-            Long limit);
+            final PostSearchCriteria criteria,
+            final Long offset,
+            final Long limit);
 
     /**
      * <summary>
      * Подсчет общего количества публикаций, удовлетворяющих заданным фильтрам.
      * Необходим для корректного расчета метаданных пагинации (общее количество страниц).
      * </summary>
-     * <param name="titleQuery">
-     * Подстрока для поиска в заголовке публикации (может быть пустой).
-     * </param>
-     * <param name="tagFilters">
-     * Список тегов для жесткой фильтрации (логическое "И").
+     * <param name="criteria">
+     * Объект с критериями для поиска публикаций.
      * </param>
      * <return>
      * @return Общее количество найденных публикаций.
      * </return>
      **/
-    public Long countAllPosts(
-            String titleQuery,
-            List<String> tagFilters
-    );
+    public Long countAllPosts(final PostSearchCriteria criteria);
 
     // endregion
 }

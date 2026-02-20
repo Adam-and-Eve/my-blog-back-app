@@ -5,6 +5,8 @@ import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueOb
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -43,8 +45,7 @@ public final class PostEntityObject extends BaseEntityObject
 
     public PostEntityObject(
             PostTitleValueObject title,
-            PostTextValueObject text,
-            Long likesCount
+            PostTextValueObject text
     )
     {
         super();
@@ -55,15 +56,27 @@ public final class PostEntityObject extends BaseEntityObject
 
         this.tags = new HashSet<>();
 
-        this.likesCount = Objects.requireNonNull(likesCount);
+        this.likesCount = 0L;
     }
 
     public PostEntityObject(
+            Long id,
             PostTitleValueObject title,
-            PostTextValueObject text
+            PostTextValueObject text,
+            Long likesCount,
+            OffsetDateTime createdAt,
+            OffsetDateTime updatedAt
     )
     {
-        this(title, text, 0L);
+        super(id, createdAt, updatedAt);
+
+        this.title = Objects.requireNonNull(title);
+
+        this.text = Objects.requireNonNull(text);
+
+        this.tags = new HashSet<>();
+
+        this.likesCount = Objects.requireNonNull(likesCount);
     }
 
     // endregion

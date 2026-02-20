@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -82,19 +82,19 @@ public class PersistenceConfiguration
 
     /**
      * <summary>
-     * Создает JdbcTemplate на основе источника данных (DataSource).
+     * Создает NamedParameterJdbcTemplate на основе источника данных (DataSource).
      * </summary>
      * <param name="dataSource">
      * Источник данных.
      * </param>
      * <return>
-     * @return Готовый к работе JdbcTemplate.
+     * @return Готовый к работе NamedParameterJdbcTemplate.
      * </return>
      **/
     @Bean
-    public JdbcTemplate jdbcTemplate(final DataSource dataSource)
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(final DataSource dataSource)
     {
-        return new JdbcTemplate(dataSource);
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 
     /**
@@ -110,9 +110,9 @@ public class PersistenceConfiguration
 
     /**
      * <summary>
-     * Создает бин репозитория публикаций и внедряет в него JdbcTemplate.
+     * Создает бин репозитория публикаций и внедряет в него NamedParameterJdbcTemplate.
      * </summary>
-     * <param name="jdbcTemplate">
+     * <param name="namedParameterJdbcTemplate">
      * Настроенный шаблон JDBC.
      * </param>
      * <return>
@@ -120,9 +120,9 @@ public class PersistenceConfiguration
      * </return>
      **/
     @Bean
-    public IPostRepository postRepository(final JdbcTemplate jdbcTemplate)
+    public IPostRepository postRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
-        return new PostJdbcRepository(jdbcTemplate);
+        return new PostJdbcRepository(namedParameterJdbcTemplate);
     }
 
     // endregion

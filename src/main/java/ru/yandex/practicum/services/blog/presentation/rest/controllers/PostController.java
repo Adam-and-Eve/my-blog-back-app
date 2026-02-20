@@ -51,18 +51,6 @@ public final class PostController
 
     /**
      * <summary>
-     * Тестовый эндпоинт для проверки работоспособности контроллера и корректности роутинга.
-     * </summary>
-     * @return HTTP-ответ 200 (OK) с простым текстовым сообщением.
-     **/
-    @GetMapping("/test-message")
-    public ResponseEntity<String> getTestMessage()
-    {
-        return ResponseEntity.ok("Test message");
-    }
-
-    /**
-     * <summary>
      * Получение постраничного списка публикаций.
      * Все параметры являются обязательными согласно спецификации задания.
      * </summary>
@@ -86,7 +74,6 @@ public final class PostController
             @RequestParam("pageSize") Long pageSize
     )
     {
-
         // Делегируем выполнение бизнес-логики сервису слоя Application.
         var responseDto = postService.getPostsPage(search, pageNumber, pageSize);
 

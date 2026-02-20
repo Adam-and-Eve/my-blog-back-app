@@ -1,10 +1,12 @@
 package ru.yandex.practicum.services.blog.infrastructure.persistence.repositories;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostRowMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,13 +19,13 @@ public final class PostJdbcRepository implements IPostRepository
 {
     // region Fields
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     // endregion
 
     // region Constructors
 
-    public PostJdbcRepository(final JdbcTemplate jdbcTemplate)
+    public PostJdbcRepository(final NamedParameterJdbcTemplate jdbcTemplate)
     {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -38,16 +40,12 @@ public final class PostJdbcRepository implements IPostRepository
 
     // region Methods
 
-
     /**
      * <summary>
      * Получение постраничного списка публикаций с учетом фильтрации и пагинации на стороне БД.
      * </summary>
-     * <param name="titleQuery">
-     * Подстрока для поиска в заголовке публикации (может быть пустой).
-     * </param>
-     * <param name="tagFilters">
-     * Список тегов для жесткой фильтрации (логическое "И").
+     * <param name="criteria">
+     * Объект с критериями для поиска публикаций.
      * </param>
      * <param name="offset">
      * Количество записей, которые нужно пропустить (для пагинации).
@@ -60,38 +58,148 @@ public final class PostJdbcRepository implements IPostRepository
      * </return>
      **/
     @Override
+    @SuppressWarnings("SqlSourceToSinkFlow")
     public List<PostEntityObject> findAllPosts(
-            String titleQuery,
-            List<String> tagFilters,
-            Long offset,
-            Long limit
+            final PostSearchCriteria criteria,
+            final Long offset,
+            final Long limit
     )
     {
-        return new ArrayList<>();
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        /*
+         * Формируем базовую выборку полей сущности.
+         */
+        sqlQuery.append("SELECT [P].[Id], ")
+                .append("[P].[Title], ")
+                .append("[P].[Text], ")
+                .append("[P].[LikesCount], ")
+                .append("[P].[CreatedAt], ")
+                .append("[P].[UpdatedAt] ")
+                .append("FROM [dbo].[Posts] AS [P] ");
+
+        /*
+         * Применяем динамические фильтры.
+         */
+        appendFilters(sqlQuery, sqlParams, criteria);
+
+        /*
+         * Добавляем сортировку постов (сначала самые свежие).
+         */
+        sqlQuery.append("ORDER BY [P].[CreatedAt] DESC ");
+
+        /*
+         * Добавляем пагинацию MS SQL Server.
+         */
+        sqlQuery.append("OFFSET :offset ROW FETCH NEXT :limit ROWS ONLY ");
+
+        sqlParams.addValue("offset", offset);
+
+        sqlParams.addValue("limit", limit);
+
+        return jdbcTemplate.query(
+                sqlQuery.toString(),
+                sqlParams,
+                new PostRowMapper());
     }
 
     /**
      * <summary>
      * Подсчет общего количества публикаций, удовлетворяющих заданным фильтрам.
      * Необходим для корректного расчета метаданных пагинации (общее количество страниц).
-     * </summary>
-     * <param name="titleQuery">
-     * Подстрока для поиска в заголовке публикации (может быть пустой).
-     * </param>
-     * <param name="tagFilters">
-     * Список тегов для жесткой фильтрации (логическое "И").
+     * <param name="criteria">
+     * Объект с критериями для поиска публикаций.
      * </param>
      * <return>
      * @return Общее количество найденных публикаций.
      * </return>
      **/
     @Override
-    public Long countAllPosts(
-            String titleQuery,
-            List<String> tagFilters
+    @SuppressWarnings("SqlSourceToSinkFlow")
+    public Long countAllPosts(final PostSearchCriteria criteria)
+    {
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        /*
+         * Формируем базовую выборку полей сущности.
+         */
+        sqlQuery.append("SELECT COUNT(*) ")
+                .append("FROM [dbo].[Posts] AS [P] ");
+
+        /*
+         * Применяем динамические фильтры.
+         */
+       appendFilters(sqlQuery, sqlParams, criteria);
+
+        var result = jdbcTemplate.queryForObject(
+                sqlQuery.toString(),
+                sqlParams,
+                Long.class);
+
+        return result != null ? result : 0L;
+    }
+
+    /**
+     * <summary>
+     * Вспомогательный метод для динамической сборки условий WHERE.
+     * </summary>
+     * <param name="sqlQuery">
+     * Конструктор строки SQL-запроса.
+     * </param>
+     * <param name="sqlParams">
+     * Контейнер для именованных параметров.
+     * </param>
+     * <param name="criteria">
+     * Критерии фильтрации.
+     * </param>
+     */
+    private void appendFilters(
+            final StringBuilder sqlQuery,
+            final MapSqlParameterSource sqlParams,
+            final PostSearchCriteria criteria
     )
     {
-        return jdbcTemplate.queryForObject("SELECT 1", Long.class);
+        sqlQuery.append(" WHERE 1 = 1 ");
+
+        /*
+         * Фильтрация по частичному совпадению в заголовке.
+         */
+        if (criteria.getTitleQuery() != null &&
+            !criteria.getTitleQuery().isBlank())
+        {
+            sqlQuery.append("AND [P].[Title] LIKE :title ");
+
+            sqlParams.addValue(
+                    "title",
+                    "%" + criteria.getTitleQuery().trim() + "%");
+        }
+
+        /*
+         * Фильтрация по набору тегов (логика "И").
+         * Для каждого тега генерируется отдельное условие EXISTS.
+         */
+        if (criteria.getTagFilters() != null &&
+            !criteria.getTagFilters().isEmpty())
+        {
+            for (var i = 0; i < criteria.getTagFilters().size(); i++)
+            {
+                final var paramName = "tagFilter" + i;
+
+                final var tagValue = criteria.getTagFilters().get(i);
+
+                sqlQuery.append("AND EXISTS ( ")
+                        .append("SELECT 1 FROM [dbo].[PostTags] AS [PT] ")
+                        .append("JOIN [dbo].[Tags] AS [T] ON [T].[Id] = [PT].[TagId] ") // Проверь Id или TagId!
+                        .append("WHERE [PT].[PostId] = [P].[Id] ")
+                        .append("AND [T].[Name] = :")
+                        .append(paramName)
+                        .append(" ) ");
+
+                sqlParams.addValue(paramName, tagValue);
+            }
+        }
     }
 
     // endregion

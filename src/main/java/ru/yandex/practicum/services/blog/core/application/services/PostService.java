@@ -1,20 +1,14 @@
 package ru.yandex.practicum.services.blog.core.application.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
-import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
+import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -99,91 +93,14 @@ public final class PostService implements IPostService
         }
 
         /*
-         * Нормализуем строку поиска.
+         * Считываем критерии для поиска постов.
          */
-        search = search == null ? "" : search.trim();
-
-        /*
-         * Генерируем тестовые данные (имитация базы данных).
-         */
-        var posts = generateAllTestPosts();
-
-        var check = postRepository.countAllPosts(search, List.of());
-
-        System.out.println("База ответила: " + check);
-
-        /*
-         * Разделяем строку поиска по любому количеству пробелов
-         * и удаляем пустые элементы.
-         */
-        var searchParts = search.isEmpty()
-                ? List.<String>of()
-                : Arrays.stream(search.split("\\s+"))
-                        .filter(s -> !s.isBlank())
-                        .toList();
-
-        /*
-         * Формируем список тегов для фильтрации.
-         * Теги начинаются с '#'.
-         */
-        var tagFilters = searchParts
-                .stream()
-                .filter(s -> s.startsWith("#") && s.length() > 1)
-                .map(s -> s.substring(1).toLowerCase())
-                .toList();
-
-
-        /*
-         * Формируем строки поиска по названию.
-         * Все слова без '#' объединяются через пробел.
-         */
-        var titleQuery = searchParts
-                .stream()
-                .filter(s -> !s.startsWith("#"))
-                .collect(Collectors.joining(" "))
-                .toLowerCase();
-
-        /*
-         * Фильтруем посты:
-         * - по тегам (логическое "И");
-         * - по подстроке в названии (логическое "И").
-         */
-        var filteredPosts = posts
-                .stream()
-                .filter(post ->
-                {
-                    /*
-                     * Получаем множество тегов поста.
-                     */
-                    var postTags = post.getTags()
-                            .stream()
-                            .map(PostTagValueObject::getValue)
-                            .map(String::toLowerCase)
-                            .collect(Collectors.toSet());
-
-                    /*
-                     * Проверяем наличие всех тегов из запроса.
-                     */
-                    var matchesTags = tagFilters.isEmpty() ||
-                            postTags.containsAll(tagFilters);
-
-                    /*
-                     * Проверяем вхождение строки из запроса в название поста.
-                     */
-                    var matchesTitle = titleQuery.isEmpty() ||
-                            post.getTitle()
-                                .getValue()
-                                .toLowerCase()
-                                .contains(titleQuery);
-
-                    return matchesTags && matchesTitle;
-                })
-                .toList();
+        var searchCriteria = PostSearchCriteria.fromRawSearch(search);
 
         /*
          * Вычисляем общее количество найденных постов.
          */
-        var totalPosts = filteredPosts.size();
+        var totalPosts = postRepository.countAllPosts(searchCriteria);
 
         /*
          * Вычисляем количество страниц.
@@ -191,7 +108,7 @@ public final class PostService implements IPostService
          */
         var lastPage = totalPosts == 0
                 ? 0
-                : (totalPosts + pageSize.intValue() - 1) / pageSize.intValue();
+                : (totalPosts + pageSize - 1L) / pageSize;
 
         /*
          * Определяем объект для хранения постов на странице.
@@ -199,17 +116,29 @@ public final class PostService implements IPostService
         var pageContent = new ArrayList<PostResponseDto>();
 
         /*
-         * Формируем содержимое страницы,
-         * если запрошенная страница входит в допустимый диапазон.
+         * Считываем нужную страницу данных из репозитория,
+         * только если запрошенная страница существует.
          */
-        if (lastPage > 0 &&
+        if (lastPage > 0L &&
             pageNumber <= lastPage)
         {
-            var fromIndex = (int) ((pageNumber - 1) * pageSize);
-            var toIndex = Math.min(fromIndex + pageSize.intValue(), totalPosts);
+            /*
+             * Вычисляем смещение (offset) для базы данных.
+             */
+            var offset = (pageNumber - 1) * pageSize;
 
-            pageContent = filteredPosts.subList(fromIndex, toIndex)
-                    .stream()
+            /*
+             * Запрашиваем ровно одну страницу из репозитория.
+             */
+            var posts = postRepository.findAllPosts(
+                    searchCriteria,
+                    offset,
+                    pageSize);
+
+            /*
+             * Преобразуем сущности в DTO для ответа.
+             */
+            pageContent = posts.stream()
                     .map(PostMapper::mapToResponseDto)
                     .collect(Collectors.toCollection(ArrayList::new));
         }
@@ -221,58 +150,8 @@ public final class PostService implements IPostService
                 pageContent,
                 pageNumber > 1 && lastPage > 0,
                 pageNumber < lastPage,
-                (long) lastPage
+                lastPage
         );
-    }
-
-    /**
-     * <summary>
-     * Вспомогательный метод для генерации тестовых данных.
-     * </summary>
-     **/
-    private List<PostEntityObject> generateAllTestPosts()
-    {
-        var result = new ArrayList<PostEntityObject>();
-
-        for (var postId = 1L; postId <= 100L; postId++)
-        {
-            var post = new PostEntityObject(
-                    new PostTitleValueObject(
-                            "Пост номер " +
-                                   postId +
-                                   (postId % 2 == 0
-                                           ? " важный"
-                                           : "")),
-                    new PostTextValueObject(
-                            (postId % 2 == 0
-                                    ? "Это очень длинный текст поста, который должен " +
-                                      "быть обрезан маппером, потому что в нем явно " +
-                                      "больше сто двадцати восьми символов для " +
-                                      "проверки корректности работы логики " +
-                                      "обрезки строк..."
-                                    : "Это обычный текст поста, который не " +
-                                      "должен быть обрезан."))
-            );
-
-            post.addTag(
-                    new PostTagValueObject(
-                            postId % 2 == 0
-                                    ? "java"
-                                    : "spring"));
-
-            if (postId % 3 == 0)
-            {
-                post.addTag(
-                        new PostTagValueObject(
-                                "news"));
-            }
-
-            post.changeId(postId);
-
-            result.add(post);
-        }
-
-        return result;
     }
 
     // endregion
