@@ -1,5 +1,6 @@
 package ru.yandex.practicum.services.blog.core.application.services;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
@@ -7,6 +8,7 @@ import ru.yandex.practicum.services.blog.core.application.interfaces.IPostReposi
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
+import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectNotFoundException;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
  * Основной сервис для работы с публикациями.
  * </summary>
  **/
-public final class PostService implements IPostService
+public class PostService implements IPostService
 {
     // region Fields
 
@@ -152,6 +154,30 @@ public final class PostService implements IPostService
                 pageNumber < lastPage,
                 lastPage
         );
+    }
+
+    /**
+     * <summary>
+     * Увеличивает количество лайков поста.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор поста.
+     * </param>
+     * <return>
+     * Новое количество лайков.
+     * </return>
+     */
+    @Override
+    @Transactional
+    public Long likePost(final Long postId)
+    {
+        return postRepository
+                .incrementLikesCount(postId)
+                .orElseThrow(() ->
+                        new EntityObjectNotFoundException(
+                                "Публикация с ID " + postId + " не найдена.",
+                                "postId"
+                        ));
     }
 
     // endregion

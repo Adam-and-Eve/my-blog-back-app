@@ -1,5 +1,6 @@
 package ru.yandex.practicum.services.blog.core.application.interfaces;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 
 /**
@@ -35,6 +36,20 @@ public interface IPostService
      * </return>
      **/
     public PostsPageResponseDto getPostsPage(String search, Long pageNumber, Long pageSize);
+
+    /**
+     * <summary>
+     * Увеличивает количество лайков поста.
+     * </summary>
+     * <param name="postId"
+     * >Идентификатор поста.
+     * </param>
+     * <return>
+     * Новое количество лайков.
+     * </return>
+     */
+    @Transactional
+    public Long likePost(final Long postId);
 
     // endregion
 }

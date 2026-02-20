@@ -4,6 +4,7 @@ import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCrit
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <summary>
@@ -55,6 +56,19 @@ public interface IPostRepository
      * </return>
      **/
     public Long countAllPosts(final PostSearchCriteria criteria);
+
+    /**
+     * <summary>
+     * Увеличивает счетчик лайков публикации на единицу.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * Обновленное количество лайков или empty, если публикация не найдена.
+     * </return>
+     */
+    public Optional<Long> incrementLikesCount(final Long postId);
 
     // endregion
 }

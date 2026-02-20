@@ -1,5 +1,6 @@
 package ru.yandex.practicum.services.blog.infrastructure.persistence.repositories;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
@@ -8,7 +9,9 @@ import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObj
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostRowMapper;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostTagRowMapper;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -152,6 +155,47 @@ public final class PostJdbcRepository implements IPostRepository
                 Long.class);
 
         return result != null ? result : 0L;
+    }
+
+    /**
+     * <summary>
+     * Увеличивает счетчик лайков публикации на единицу.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * Обновленное количество лайков или empty, если публикация не найдена.
+     * </return>
+     */
+    @Override
+    public Optional<Long> incrementLikesCount(final Long postId)
+    {
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        sqlQuery.append("UPDATE [dbo].[Posts] ")
+                .append("SET [LikesCount] = [LikesCount] + 1, ")
+                .append("[UpdatedAt] = :updatedAt ")
+                .append("OUTPUT INSERTED.[LikesCount] ")
+                .append("WHERE [Id] = :postId ");
+
+        sqlParams.addValue("postId", postId)
+                 .addValue("updatedAt", OffsetDateTime.now());
+
+        try
+        {
+            final var result =  jdbcTemplate.queryForObject(
+                    sqlQuery.toString(),
+                    sqlParams,
+                    Long.class);
+
+            return Optional.ofNullable(result);
+        }
+        catch (EmptyResultDataAccessException ex)
+        {
+            return Optional.empty();
+        }
     }
 
     /**

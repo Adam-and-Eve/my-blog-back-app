@@ -60,9 +60,9 @@ public final class PostController
      **/
     @GetMapping()
     public ResponseEntity<PostsPageResponseDto> getPostsPage(
-            @RequestParam("search") String search,
-            @RequestParam("pageNumber") Long pageNumber,
-            @RequestParam("pageSize") Long pageSize
+            @RequestParam("search") final String search,
+            @RequestParam("pageNumber") final Long pageNumber,
+            @RequestParam("pageSize") final Long pageSize
     )
     {
         // Делегируем выполнение бизнес-логики сервису слоя Application.
@@ -86,7 +86,7 @@ public final class PostController
      **/
     @GetMapping("/{id}/image")
     public ResponseEntity<Byte[]> getPostImage(
-            @PathVariable("id") Long id
+            @PathVariable("id") final Long id
     )
     {
         // Тестовой байтовый массив для прозрачного пикселя (PNG).
@@ -101,6 +101,26 @@ public final class PostController
         return ResponseEntity.ok()
                 .header("Content-Type", "image/png")
                 .body(mockImage);
+    }
+
+    /**
+     * <summary>
+     * Увеличивает количество лайков публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * Обновленное количество лайков.
+     * </return>
+     */
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Long> likePost(
+            @PathVariable("id") final Long id)
+    {
+        final var updatedLikes = postService.likePost(id);
+
+        return ResponseEntity.ok(updatedLikes);
     }
 
     // endregion
