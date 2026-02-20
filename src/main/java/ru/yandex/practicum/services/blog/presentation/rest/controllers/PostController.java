@@ -3,17 +3,8 @@ package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
-import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
-import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <summary>

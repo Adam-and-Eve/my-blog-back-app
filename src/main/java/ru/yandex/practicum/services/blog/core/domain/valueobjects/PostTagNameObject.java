@@ -12,7 +12,7 @@ import java.util.Objects;
  * в соответствии с инвариантами доменной модели.
  * </summary>
  **/
-public final class PostTagValueObject extends BaseValueObject
+public final class PostTagNameObject extends BaseValueObject
 {
     // region Fields
 
@@ -25,7 +25,7 @@ public final class PostTagValueObject extends BaseValueObject
 
     // region Constructors
 
-    public PostTagValueObject(final String value)
+    public PostTagNameObject(final String value)
     {
         this.value = isValid(value);
     }
@@ -42,7 +42,7 @@ public final class PostTagValueObject extends BaseValueObject
      * @return Значение тега.
      * </return>
      **/
-    public final  String getValue()
+    public final String getValue()
     {
         return value;
     }
@@ -90,7 +90,7 @@ public final class PostTagValueObject extends BaseValueObject
             return true;
         }
 
-        if (obj instanceof PostTagValueObject other)
+        if (obj instanceof PostTagNameObject other)
         {
             return Objects.equals(value, other.value);
         }

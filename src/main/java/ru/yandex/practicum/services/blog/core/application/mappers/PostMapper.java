@@ -2,7 +2,7 @@ package ru.yandex.practicum.services.blog.core.application.mappers;
 
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagNameObject;
 
 import java.util.stream.Collectors;
 
@@ -60,7 +60,7 @@ public final class PostMapper
                         ? post.getText().getValue().substring(0, 128) + "..."
                         : post.getText().getValue(),
                     post.getTags().stream()
-                            .map(PostTagValueObject::getValue)
+                            .map(tag -> tag.getName().getValue())
                             .collect(Collectors.toList()),
                     post.getLikesCount(),
                     0L

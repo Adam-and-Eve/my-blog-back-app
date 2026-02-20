@@ -1,11 +1,9 @@
 package ru.yandex.practicum.services.blog.core.domain.entityobjects;
 
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -30,9 +28,9 @@ public final class PostEntityObject extends BaseEntityObject
     private PostTextValueObject text;
 
     /**
-     * Список объектов-значений (Value Object), представляющих теги публикации.
+     * Список объектов-сущностей (Entity Object), представляющих теги публикации.
      **/
-    private final Set<PostTagValueObject> tags;
+    private final Set<TagEntityObject> tags;
 
     /**
      * Количество лайков публикации.
@@ -115,10 +113,10 @@ public final class PostEntityObject extends BaseEntityObject
      * Возвращает список тегов публикации.
      * </summary>
      * <return>
-     * @return Список объектов-значений (Value Object) тегов публикации.
+     * @return Список объектов-сущностей (Entity Object) тегов публикации.
      * </return>
      **/
-    public final synchronized Set<PostTagValueObject> getTags()
+    public final synchronized Set<TagEntityObject> getTags()
     {
         return Set.copyOf(tags);
     }
@@ -181,7 +179,7 @@ public final class PostEntityObject extends BaseEntityObject
      * </summary>
      * @param tag Новый тег для добавления.
      **/
-    public final synchronized void addTag(final PostTagValueObject tag)
+    public final synchronized void addTag(final TagEntityObject tag)
     {
         Objects.requireNonNull(tag);
 
@@ -198,7 +196,7 @@ public final class PostEntityObject extends BaseEntityObject
      * </summary>
      * @param tag Тег для удаления.
      **/
-    public final synchronized void removeTag(final PostTagValueObject tag)
+    public final synchronized void removeTag(final TagEntityObject tag)
     {
         Objects.requireNonNull(tag);
 
