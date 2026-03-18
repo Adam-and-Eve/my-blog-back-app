@@ -122,6 +122,65 @@ public final class PostJdbcRepository implements IPostRepository
 
     /**
      * <summary>
+     * Получение публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Доменная сущность публикации.
+     * </return>
+     **/
+    public PostEntityObject findPostById(final Long id)
+    {
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        /*
+         * Формируем базовую выборку полей сущности.
+         */
+        sqlQuery.append("SELECT [P].[Id], ")
+                .append("[P].[Title], ")
+                .append("[P].[Text], ")
+                .append("[P].[LikesCount], ")
+                .append("[P].[CreatedAt], ")
+                .append("[P].[UpdatedAt] ")
+                .append("FROM [dbo].[Posts] AS [P] ")
+                .append("WHERE [P].[Id] = :id ");
+
+        /*
+         * Применяем фильтр по идентификатору сущности.
+         */
+        sqlParams.addValue(
+                "id",
+                id);
+
+        try
+        {
+            /*
+             * Получаем "голый" пост (без тегов) из таблицы Posts.
+             */
+            var post = jdbcTemplate.queryForObject(
+                    sqlQuery.toString(),
+                    sqlParams,
+                    new PostRowMapper()
+            );
+
+            /*
+             * Обогащаем полученный пост тегами.
+             */
+            enrichPostsWithTags(List.of(post));
+
+            return post;
+        }
+        catch (EmptyResultDataAccessException ex)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * <summary>
      * Подсчет общего количества публикаций, удовлетворяющих заданным фильтрам.
      * Необходим для корректного расчета метаданных пагинации (общее количество страниц).
      * <param name="criteria">

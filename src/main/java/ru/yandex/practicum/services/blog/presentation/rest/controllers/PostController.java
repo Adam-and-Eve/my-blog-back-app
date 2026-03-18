@@ -3,6 +3,7 @@ package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 
@@ -67,6 +68,29 @@ public final class PostController
     {
         // Делегируем выполнение бизнес-логики сервису слоя Application.
         var responseDto = postService.getPostsPage(search, pageNumber, pageSize);
+
+        // Возвращаем результат клиенту.
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * <summary>
+     * Получение объекта публикации.
+     * Все параметры являются обязательными согласно спецификации задания.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации (обязательно).
+     * </param>
+     * <return>
+     * @return Ответ с объектом публикации.
+     * </return>
+     **/
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponseDto> getPostById(
+            @PathVariable("id") final Long id)
+    {
+        // Делегируем выполнение бизнес-логики сервису слоя Application.
+        var responseDto = postService.getPostById(id);
 
         // Возвращаем результат клиенту.
         return ResponseEntity.ok(responseDto);

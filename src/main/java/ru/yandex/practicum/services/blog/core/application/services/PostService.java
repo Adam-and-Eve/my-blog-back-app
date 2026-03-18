@@ -158,6 +158,39 @@ public class PostService implements IPostService
 
     /**
      * <summary>
+     * Получение объекта публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации (обязательно).
+     * </param>
+     * <return>
+     * @return DTO с данными поста.
+     * </return>
+     **/
+    @Override
+    public PostResponseDto getPostById(final Long id)
+    {
+        /*
+         * Проверяем корректность идентификатора страницы.
+         */
+        if (id == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор страницы не должен быть равен null",
+                    "id"
+            );
+        }
+
+        /*
+         * Выполняем поиск публикации в репозитории.
+         */
+        var post = postRepository.findPostById(id);
+
+        return PostMapper.mapToResponseDto(post);
+    }
+
+    /**
+     * <summary>
      * Увеличивает количество лайков поста.
      * </summary>
      * <param name="postId">

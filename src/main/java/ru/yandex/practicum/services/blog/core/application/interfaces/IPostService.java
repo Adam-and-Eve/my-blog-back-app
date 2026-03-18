@@ -1,6 +1,7 @@
 package ru.yandex.practicum.services.blog.core.application.interfaces;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 
 /**
@@ -36,6 +37,19 @@ public interface IPostService
      * </return>
      **/
     public PostsPageResponseDto getPostsPage(String search, Long pageNumber, Long pageSize);
+
+    /**
+     * <summary>
+     * Получение объекта публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации (обязательно).
+     * </param>
+     * <return>
+     * @return DTO с данными поста.
+     * </return>
+     **/
+    public PostResponseDto getPostById(Long id);
 
     /**
      * <summary>

@@ -45,6 +45,19 @@ public interface IPostRepository
 
     /**
      * <summary>
+     * Получение публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Доменная сущность публикации.
+     * </return>
+     **/
+    public PostEntityObject findPostById(final Long id);
+
+    /**
+     * <summary>
      * Подсчет общего количества публикаций, удовлетворяющих заданным фильтрам.
      * Необходим для корректного расчета метаданных пагинации (общее количество страниц).
      * </summary>
