@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("war")
+    id("org.gretty") version "5.0.2"
 }
 
 group = "ru.yandex.practicum"
@@ -21,13 +21,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    testImplementation("org.springframework:spring-test:7.0.3")
+    testImplementation("org.springframework:spring-test:7.0.7")
 
-    implementation("org.springframework:spring-webmvc:7.0.3")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("org.springframework:spring-webmvc:7.0.7")
+    implementation("tools.jackson.core:jackson-databind:3.1.0")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")
 
-    implementation("org.springframework:spring-jdbc:7.0.3")
+    implementation("org.springframework:spring-jdbc:7.0.7")
 
     implementation("com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11")
 }
@@ -36,6 +36,9 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.named<War>("war") {
-    archiveFileName.set("ROOT.war")
+gretty {
+    httpPort = 8080
+    contextPath = "/"
+
+    servletContainer = "jetty12"
 }
