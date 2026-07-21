@@ -83,5 +83,19 @@ public interface IPostService
     @Transactional
     public PostResponseDto createPost(final CreatePostRequestDto request);
 
+    /**
+     * <summary>
+     * Удаление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус удаления публикации.
+     * </return>
+     **/
+    @Transactional
+    public Boolean deletePost(final Long id);
+
     // endregion
 }

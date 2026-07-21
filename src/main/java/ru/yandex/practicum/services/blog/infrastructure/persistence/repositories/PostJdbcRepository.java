@@ -371,6 +371,39 @@ public final class PostJdbcRepository implements IPostRepository
 
     /**
      * <summary>
+     * Удаление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус удаления публикации.
+     * </return>
+     **/
+    public Boolean deletePost(final Long id)
+    {
+        if (id == null)
+        {
+            return false;
+        }
+
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        sqlQuery.append("DELETE [dbo].[Posts] ")
+                .append("WHERE [Id] = :postId ");
+
+        sqlParams.addValue("postId", id);
+
+        final var result =  jdbcTemplate.update(
+                sqlQuery.toString(),
+                sqlParams);
+
+        return result > 0;
+    }
+
+    /**
+     * <summary>
      * Вспомогательный метод для динамической сборки условий WHERE.
      * </summary>
      * <param name="sqlQuery">

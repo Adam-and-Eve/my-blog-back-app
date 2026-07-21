@@ -217,6 +217,20 @@ public class PostService implements IPostService
                         ));
     }
 
+    /**
+     * <summary>
+     * Создание объекта публикации.
+     * </summary>
+     * <param name="title">
+     * Название публикации (обязательно).
+     * </param>
+     * <param name="text">
+     * Текст публикации (обязательно).
+     * </param>
+     * <return>
+     * @return Объект публикации.
+     * </return>
+     **/
     @Override
     public PostResponseDto createPost(final CreatePostRequestDto request)
     {
@@ -255,6 +269,39 @@ public class PostService implements IPostService
                 postEntity.getLikesCount(),
                 postEntity.getCommentsCount()
         );
+    }
+
+    /**
+     * <summary>
+     * Удаление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус удаления публикации.
+     * </return>
+     **/
+    @Transactional
+    public Boolean deletePost(final Long id)
+    {
+        if (id == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не может быть пустым"
+            );
+        }
+
+        var operationStatus = postRepository.deletePost(id);
+
+        if (!operationStatus)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Пост с id '" + id + "' не найден"
+            );
+        }
+
+        return true;
     }
 
     // endregion
