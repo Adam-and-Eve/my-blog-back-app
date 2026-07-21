@@ -371,6 +371,40 @@ public final class PostJdbcRepository implements IPostRepository
 
     /**
      * <summary>
+     * Обновление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус обновления публикации.
+     * </return>
+     **/
+    public Boolean updatePostById(final PostEntityObject post)
+    {
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        sqlQuery.append("UPDATE [dbo].[Posts] ")
+                .append("SET [Title] = :title, ")
+                .append("[Text] = :text, ")
+                .append("[UpdatedAt] = :updatedAt ")
+                .append("WHERE [Id] = :postId ");
+
+        sqlParams.addValue("title", post.getTitle().getValue())
+                 .addValue("text", post.getText().getValue())
+                 .addValue("updatedAt", post.getUpdatedAt())
+                 .addValue("postId", post.getId());
+
+        final var result =  jdbcTemplate.update(
+                sqlQuery.toString(),
+                sqlParams);
+
+        return result > 0;
+    }
+
+    /**
+     * <summary>
      * Удаление публикации.
      * </summary>
      * <param name="id">
@@ -380,7 +414,7 @@ public final class PostJdbcRepository implements IPostRepository
      * @return Статус удаления публикации.
      * </return>
      **/
-    public Boolean deletePost(final Long id)
+    public Boolean deletePostById(final Long id)
     {
         if (id == null)
         {

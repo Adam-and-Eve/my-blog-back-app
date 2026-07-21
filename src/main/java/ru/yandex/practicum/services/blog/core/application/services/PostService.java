@@ -4,6 +4,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
@@ -273,6 +274,72 @@ public class PostService implements IPostService
 
     /**
      * <summary>
+     * Обновление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус обновления публикации.
+     * </return>
+     **/
+    @Transactional
+    public PostResponseDto updatePostById(final Long id, final UpdatePostRequestDto request)
+    {
+        if (id == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не должен быть пустым");
+        }
+
+        if (request == null)
+        {
+            throw new ApplicationValidationException(
+                    "Объект публикации не должен быть пустым");
+        }
+
+        var tempPostEntity = postRepository.findPostById(id);
+
+        if (tempPostEntity == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + id + "' в базе данных сервиса"
+            );
+        }
+
+        tempPostEntity.changeTitle(new PostTitleValueObject(request.getTitle()));
+
+        tempPostEntity.changeText(new PostTextValueObject(request.getText()));
+
+        var operationStatus = postRepository.updatePostById(tempPostEntity);
+
+        if (!operationStatus)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось обновить данные публикации с id '" + id + "' в базе данных сервиса");
+        }
+
+        var updatedPostEntity = postRepository.findPostById(id);
+
+        if (updatedPostEntity == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + id + "' в базе данных сервиса"
+            );
+        }
+
+        return new PostResponseDto(
+                updatedPostEntity.getId(),
+                updatedPostEntity.getTitle().getValue(),
+                updatedPostEntity.getText().getValue(),
+                updatedPostEntity.getTags().stream().map(tag -> tag.getName().getValue()).toList(),
+                updatedPostEntity.getLikesCount(),
+                updatedPostEntity.getCommentsCount()
+        );
+    }
+
+    /**
+     * <summary>
      * Удаление публикации.
      * </summary>
      * <param name="id">
@@ -283,7 +350,7 @@ public class PostService implements IPostService
      * </return>
      **/
     @Transactional
-    public Boolean deletePost(final Long id)
+    public Boolean deletePostById(final Long id)
     {
         if (id == null)
         {
@@ -292,12 +359,12 @@ public class PostService implements IPostService
             );
         }
 
-        var operationStatus = postRepository.deletePost(id);
+        var operationStatus = postRepository.deletePostById(id);
 
         if (!operationStatus)
         {
             throw new EntityObjectNotFoundException(
-                    "Пост с id '" + id + "' не найден"
+                    "Не удалось удалить данные публикации с id '" + id + "' из бызы данных сервиса"
             );
         }
 

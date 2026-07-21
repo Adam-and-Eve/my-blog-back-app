@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 
 import java.util.List;
@@ -175,19 +176,39 @@ public final class PostController
 
     /**
      * <summary>
+     * Обновляет публикацию.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<PostResponseDto> updatePost(
+            @PathVariable("id") Long id,
+            @RequestBody UpdatePostRequestDto request
+    )
+    {
+        var response = postService.updatePostById(id, request);
+
+        return response == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(response);
+    }
+
+    /**
+     * <summary>
      * Удаляет публикацию.
      * </summary>
      * <param name="id">
      * Идентификатор публикации.
      * </param>
-     * <return>
-     * Статус выполнения операции.
-     * </return>
      */
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable("id") final Long id)
+    public ResponseEntity<Void> deletePost(@PathVariable("id") final Long id)
     {
-        postService.deletePost(id);
+        postService.deletePostById(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     // endregion

@@ -107,7 +107,20 @@ public interface IPostRepository
      * @return Статус удаления публикации.
      * </return>
      **/
-    public Boolean deletePost(final Long id);
+    public Boolean updatePostById(final PostEntityObject post);
+
+    /**
+     * <summary>
+     * Удаление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус удаления публикации.
+     * </return>
+     **/
+    public Boolean deletePostById(final Long id);
 
     // endregion
 }

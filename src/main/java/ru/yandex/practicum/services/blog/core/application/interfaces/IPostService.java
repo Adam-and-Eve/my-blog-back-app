@@ -4,6 +4,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
 
 /**
  * <summary>
@@ -85,6 +86,20 @@ public interface IPostService
 
     /**
      * <summary>
+     * Обновление публикации.
+     * </summary>
+     * <param name="id">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Статус обновления публикации.
+     * </return>
+     **/
+    @Transactional
+    public PostResponseDto updatePostById(final Long id, final UpdatePostRequestDto request);
+
+    /**
+     * <summary>
      * Удаление публикации.
      * </summary>
      * <param name="id">
@@ -95,7 +110,7 @@ public interface IPostService
      * </return>
      **/
     @Transactional
-    public Boolean deletePost(final Long id);
+    public Boolean deletePostById(final Long id);
 
     // endregion
 }
