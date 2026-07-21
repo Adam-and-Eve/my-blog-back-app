@@ -83,5 +83,18 @@ public interface IPostRepository
      */
     public Optional<Long> incrementLikesCount(final Long postId);
 
+    /**
+     * <summary>
+     * Создание публикации.
+     * </summary>
+     * <param name="post">
+     * Объект публикации.
+     * </param>
+     * <return>
+     * @return Идентификатор публикации.
+     * </return>
+     **/
+    public Optional<Long> createPost(final PostEntityObject post);
+
     // endregion
 }

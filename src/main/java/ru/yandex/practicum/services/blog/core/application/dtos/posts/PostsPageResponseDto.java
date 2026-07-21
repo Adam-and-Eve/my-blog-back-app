@@ -9,7 +9,7 @@ import java.util.List;
  * управления пагинацией на стороне клиента (фронтенда).
  * </summary>
  **/
-public final class PostsPageResponseDto
+public class PostsPageResponseDto
 {
     // region Fields
 
@@ -18,28 +18,28 @@ public final class PostsPageResponseDto
      * Список публикаций для текущей страницы.
      * </summary>
      **/
-    private final List<PostResponseDto> posts;
+    private List<PostResponseDto> posts;
 
     /**
      * <summary>
      * Флаг, указывающий на наличие предыдущей страницы.
      * </summary>
      **/
-    private final Boolean hasPrev;
+    private Boolean hasPrev;
 
     /**
      * <summary>
      * Флаг, указывающий на наличие следующей страницы.
      * </summary>
      **/
-    private final Boolean hasNext;
+    private Boolean hasNext;
 
     /**
      * <summary>
      * Номер последней доступной страницы (общее количество страниц).
      * </summary>
      **/
-    private final Long lastPage;
+    private Long lastPage;
 
     // endregion
 
@@ -73,7 +73,7 @@ public final class PostsPageResponseDto
      * @return Список объектов PostResponseDto.
      * </return>
      **/
-    public final List<PostResponseDto> getPosts()
+    public List<PostResponseDto> getPosts()
     {
         return posts;
     }
@@ -86,7 +86,7 @@ public final class PostsPageResponseDto
      * @return Значение true, если предыдущая страница существует, иначе false.
      * </return>
      **/
-    public final Boolean getHasPrev()
+    public Boolean getHasPrev()
     {
         return hasPrev;
     }
@@ -99,7 +99,7 @@ public final class PostsPageResponseDto
      * @return Значение true, если следующая страница существует, иначе false.
      * </return>
      **/
-    public final Boolean getHasNext()
+    public Boolean getHasNext()
     {
         return hasNext;
     }
@@ -112,7 +112,7 @@ public final class PostsPageResponseDto
      * @return Номер последней страницы.
      * </return>
      **/
-    public final Long getLastPage()
+    public Long getLastPage()
     {
         return lastPage;
     }

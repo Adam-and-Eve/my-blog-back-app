@@ -37,6 +37,11 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     private Long likesCount;
 
+    /**
+     * Количество комментариев публикации.
+     **/
+    private Long commentsCount;
+
     // endregion
 
     // region Constructors
@@ -55,6 +60,8 @@ public final class PostEntityObject extends BaseEntityObject
         this.tags = new HashSet<>();
 
         this.likesCount = 0L;
+
+        this.commentsCount = 0L;
     }
 
     public PostEntityObject(
@@ -75,6 +82,8 @@ public final class PostEntityObject extends BaseEntityObject
         this.tags = new HashSet<>();
 
         this.likesCount = Objects.requireNonNull(likesCount);
+
+        this.commentsCount = 0L;
     }
 
     // endregion
@@ -132,6 +141,19 @@ public final class PostEntityObject extends BaseEntityObject
     public final synchronized Long getLikesCount()
     {
         return likesCount;
+    }
+
+    /**
+     * <summary>
+     * Возвращает количество комментариев публикации.
+     * </summary>
+     * <return>
+     * @return Количество комментариев публикации.
+     * </return>
+     **/
+    public final synchronized Long getCommentsCount()
+    {
+        return commentsCount;
     }
 
     // endregion

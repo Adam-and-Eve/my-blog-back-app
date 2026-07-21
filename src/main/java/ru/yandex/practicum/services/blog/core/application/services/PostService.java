@@ -1,6 +1,7 @@
 package ru.yandex.practicum.services.blog.core.application.services;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
@@ -8,7 +9,10 @@ import ru.yandex.practicum.services.blog.core.application.interfaces.IPostReposi
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
+import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectNotFoundException;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -211,6 +215,46 @@ public class PostService implements IPostService
                                 "Публикация с ID " + postId + " не найдена.",
                                 "postId"
                         ));
+    }
+
+    @Override
+    public PostResponseDto createPost(final CreatePostRequestDto request)
+    {
+        if (request == null)
+        {
+            throw new ApplicationValidationException(
+                    "Объект публикации не должен быть пустым");
+        }
+
+        var tempPostEntity = new PostEntityObject(
+                new PostTitleValueObject(request.getTitle()),
+                new PostTextValueObject(request.getText())
+        );
+
+        var postId = postRepository.createPost(tempPostEntity);
+
+        if (postId.isEmpty())
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось создать объект публикации в базе данных сервиса.");
+        }
+
+        var postEntity = postRepository.findPostById(postId.get());
+
+        if (postEntity == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Созданный объект публикации не найден.");
+        }
+
+        return new PostResponseDto(
+                postEntity.getId(),
+                postEntity.getTitle().getValue(),
+                postEntity.getText().getValue(),
+                postEntity.getTags().stream().map(tag -> tag.getName().getValue()).toList(),
+                postEntity.getLikesCount(),
+                postEntity.getCommentsCount()
+        );
     }
 
     // endregion

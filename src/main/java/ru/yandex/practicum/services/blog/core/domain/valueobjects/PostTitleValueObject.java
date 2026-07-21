@@ -42,7 +42,7 @@ public final class PostTitleValueObject extends BaseValueObject
      * @return Значение заголовка.
      * </return>
      **/
-    public final  String getValue()
+    public final String getValue()
     {
         return value;
     }

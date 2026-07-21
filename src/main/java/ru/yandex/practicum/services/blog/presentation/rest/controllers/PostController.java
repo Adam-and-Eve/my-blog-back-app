@@ -3,9 +3,12 @@ package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
+
+import java.util.List;
 
 /**
  * <summary>
@@ -145,6 +148,28 @@ public final class PostController
         final var updatedLikes = postService.likePost(id);
 
         return ResponseEntity.ok(updatedLikes);
+    }
+
+    /**
+     * <summary>
+     * Создает новый экземпляр публикации.
+     * </summary>
+     * <param name="request">
+     * Объект с информацей публикации.
+     * </param>
+     * <return>
+     * Информация о публикации из базы данных сервиса.
+     * </return>
+     **/
+    @PostMapping()
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody CreatePostRequestDto request)
+    {
+        /*
+         * Считываем информацию о публикации.
+         */
+        var postResponseDto = postService.createPost(request);
+
+        return ResponseEntity.ok(postResponseDto);
     }
 
     // endregion

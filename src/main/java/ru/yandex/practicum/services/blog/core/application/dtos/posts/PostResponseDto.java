@@ -10,39 +10,39 @@ import java.util.List;
  * данных и независимость внешнего контракта от доменных сущностей.
  * </summary>
  **/
-public final class PostResponseDto
+public class PostResponseDto
 {
     // region Fields
 
     /**
      * Уникальный идентификатор сущности.
      **/
-    private final Long id;
+    private Long id;
 
     /**
      * Заголовок публикации.
      **/
-    private final String title;
+    private String title;
 
     /**
      * Сообщение публикации в формате Markdown.
      **/
-    private final String text;
+    private String text;
 
     /**
      * Список тегов, связанных с публикацией.
      **/
-    private final List<String> tags;
+    private List<String> tags;
 
     /**
      * Количество лайков.
      **/
-    private final Long likesCount;
+    private Long likesCount;
 
     /**
      * Количество комментариев.
      **/
-    private final Long commentsCount;
+    private Long commentsCount;
 
     // endregion
 
@@ -74,7 +74,7 @@ public final class PostResponseDto
 
     // region Properties
 
-    public final  Long getId()
+    public Long getId()
     {
         return id;
     }
@@ -87,7 +87,7 @@ public final class PostResponseDto
      * @return Значение заголовка.
      * </return>
      **/
-    public final String getTitle()
+    public String getTitle()
     {
         return title;
     }
@@ -100,7 +100,7 @@ public final class PostResponseDto
      * @return Значение сообщения в формате Markdown.
      * </return>
      **/
-    public final String getText()
+    public String getText()
     {
         return text;
     }
@@ -113,7 +113,7 @@ public final class PostResponseDto
      * @return Список тегов публикации.
      * </return>
      **/
-    public final List<String> getTags()
+    public List<String> getTags()
     {
         return tags;
     }
@@ -126,7 +126,7 @@ public final class PostResponseDto
      * @return Количество лайков публикации.
      * </return>
      **/
-    public final Long getLikesCount()
+    public Long getLikesCount()
     {
         return likesCount;
     }
@@ -139,7 +139,7 @@ public final class PostResponseDto
      * @return Количество комментариев к публикации.
      * </return>
      **/
-    public final Long getCommentsCount()
+    public Long getCommentsCount()
     {
         return commentsCount;
     }

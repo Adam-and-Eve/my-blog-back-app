@@ -1,6 +1,7 @@
 package ru.yandex.practicum.services.blog.core.application.interfaces;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 
@@ -64,6 +65,23 @@ public interface IPostService
      */
     @Transactional
     public Long likePost(final Long postId);
+
+    /**
+     * <summary>
+     * Создание объекта публикации.
+     * </summary>
+     * <param name="title">
+     * Название публикации (обязательно).
+     * </param>
+     * <param name="text">
+     * Текст публикации (обязательно).
+     * </param>
+     * <return>
+     * @return Объект публикации.
+     * </return>
+     **/
+    @Transactional
+    public PostResponseDto createPost(final CreatePostRequestDto request);
 
     // endregion
 }

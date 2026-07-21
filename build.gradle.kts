@@ -41,4 +41,6 @@ gretty {
     contextPath = "/"
 
     servletContainer = "jetty12"
+
+    debugSuspend = true
 }

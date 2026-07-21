@@ -329,6 +329,48 @@ public final class PostJdbcRepository implements IPostRepository
 
     /**
      * <summary>
+     * Создание публикации.
+     * </summary>
+     * <param name="post">
+     * Объект публикации.
+     * </param>
+     * <return>
+     * @return Идентификатор публикации.
+     * </return>
+     **/
+    public Optional<Long> createPost(final PostEntityObject post)
+    {
+        var sqlQuery = new StringBuilder();
+        var sqlParams = new MapSqlParameterSource();
+
+        sqlQuery.append("INSERT [dbo].[Posts] ")
+                .append("(Title, Text, LikesCount, CreatedAt, UpdatedAt) ")
+                .append("OUTPUT inserted.Id ")
+                .append("VALUES (:title, :text, :likesCount, :createdAt, :updatedAt); ");
+
+        sqlParams.addValue("title", post.getTitle().getValue())
+                .addValue("text", post.getText().getValue())
+                .addValue("likesCount", post.getLikesCount())
+                .addValue("createdAt", post.getCreatedAt())
+                .addValue("updatedAt", post.getUpdatedAt());
+
+        try
+        {
+            final var result =  jdbcTemplate.queryForObject(
+                    sqlQuery.toString(),
+                    sqlParams,
+                    Long.class);
+
+            return Optional.ofNullable(result);
+        }
+        catch (EmptyResultDataAccessException ex)
+        {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * <summary>
      * Вспомогательный метод для динамической сборки условий WHERE.
      * </summary>
      * <param name="sqlQuery">
@@ -377,7 +419,7 @@ public final class PostJdbcRepository implements IPostRepository
 
                 sqlQuery.append("AND EXISTS ( ")
                         .append("SELECT 1 FROM [dbo].[PostTags] AS [PT] ")
-                        .append("JOIN [dbo].[Tags] AS [T] ON [T].[Id] = [PT].[TagId] ") // Проверь Id или TagId!
+                        .append("JOIN [dbo].[Tags] AS [T] ON [T].[Id] = [PT].[TagId] ")
                         .append("WHERE [PT].[PostId] = [P].[Id] ")
                         .append("AND [T].[Name] = :")
                         .append(paramName)
