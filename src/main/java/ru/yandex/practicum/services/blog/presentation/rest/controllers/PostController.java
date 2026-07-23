@@ -2,15 +2,13 @@ package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 
 import java.util.List;
@@ -32,6 +30,8 @@ public final class PostController
      * Сервис для выполнения операций над публикациями.
      **/
     private final IPostService postService;
+    private final IPostRepository postRepository;
+    private final ICommentRepository commentRepository;
 
     // endregion
 
@@ -39,10 +39,12 @@ public final class PostController
 
     @Autowired
     public PostController(
-            IPostService postService
-    )
+            IPostService postService,
+            IPostRepository postRepository, ICommentRepository commentRepository)
     {
         this.postService = postService;
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     // endregion
@@ -239,6 +241,93 @@ public final class PostController
         }
 
         postService.updatePostImage(id, image);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * <summary>
+     * Получение комментариев публикации.
+     * </summary>
+     * <param name="id">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Список комментариев публикации.
+     * </return>
+     **/
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentResponseDto>> getPostComments(
+            @PathVariable("id") final Long id)
+    {
+        var comments = postService.getCommentsByPostId(id);
+
+        return ResponseEntity.ok(comments);
+    }
+
+    /**
+     * <summary>
+     * Добавление нового комментария к публикации.
+     * </summary>
+     * <param name="id">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Данные для создания комментария.
+     * </param>
+     * @return Созданный комментарий.
+     **/
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentResponseDto> createComment(
+            @PathVariable("id") final Long id,
+            @RequestBody final CreateCommentRequestDto comment)
+    {
+        final var response = postService.createComment(id, comment);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * <summary>
+     * Добавление нового комментария к публикации.
+     * </summary>
+     * <param name="id">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Данные для создания комментария.
+     * </param>
+     * @return Созданный комментарий.
+     **/
+    @PutMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @PathVariable("postId") final Long postId,
+            @PathVariable("commentId") final Long commentId,
+            @RequestBody final UpdateCommentRequestDto commentDto)
+    {
+        final var response = postService.updateComment(postId, commentId, commentDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * <summary>
+     * Удаление комментария публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="commentId">
+     * Уникальный идентификатор комментария.
+     * </param>
+     * @return Статус выполнения операции.
+     **/
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable("postId") final Long postId,
+            @PathVariable("commentId") final Long commentId)
+    {
+        postService.deleteComment(postId, commentId);
 
         return ResponseEntity.ok().build();
     }

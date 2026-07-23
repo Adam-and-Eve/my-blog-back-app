@@ -2,10 +2,9 @@ package ru.yandex.practicum.services.blog.core.application.interfaces;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
+
+import java.util.List;
 
 /**
  * <summary>
@@ -147,7 +146,70 @@ public interface IPostService
      * Содержимое изображения публикации.
      * </param>
      **/
+    @Transactional
     public void updatePostImage(final Long postId, final MultipartFile imageContent);
+
+    /**
+     * <summary>
+     * Получение комментариев по идентификатору публикации.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Комментарии публикации.
+     * </return>
+     **/
+    @Transactional
+    public List<CommentResponseDto> getCommentsByPostId(final Long postId);
+
+    /**
+     * <summary>
+     * Добавление комментария к публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Новый комментарий к публикации.
+     * </param>
+     * <return>
+     * @return Комментарий к публикации из базы данных сервиса.
+     * </return>
+     **/
+    @Transactional
+    public CommentResponseDto createComment(final Long postId, final CreateCommentRequestDto comment);
+
+    /**
+     * <summary>
+     * Обновления комментария публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Обновленный комментарий к публикации.
+     * </param>
+     * <return>
+     * @return Обновленный комментарий к публикации из базы данных сервиса.
+     * </return>
+     **/
+    @Transactional
+    public CommentResponseDto updateComment(final Long postId, final Long commentId, final UpdateCommentRequestDto commentDto);
+
+    /**
+     * <summary>
+     * Удаления комментария публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="commentId">
+     * Уникальный идентификатор комментария.
+     * </param>
+     **/
+    @Transactional
+    public void deleteComment(final Long postId, final Long commentId);
 
     // endregion
 }

@@ -9,10 +9,12 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.options.PersistenceOptions;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.CommentJdbcRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.ImageJdbcRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.PostJdbcRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.TagJdbcRepository;
@@ -161,6 +163,23 @@ public class PersistenceConfiguration
     public IImageRepository imageRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
         return new ImageJdbcRepository(namedParameterJdbcTemplate);
+    }
+
+    /**
+     * <summary>
+     * Создает бин репозитория комментариев и внедряет в него NamedParameterJdbcTemplate.
+     * </summary>
+     * <param name="namedParameterJdbcTemplate">
+     * Настроенный шаблон JDBC.
+     * </param>
+     * <return>
+     * @return ICommentRepository ITagRepository.
+     * </return>
+     **/
+    @Bean
+    public ICommentRepository commentRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    {
+        return new CommentJdbcRepository(namedParameterJdbcTemplate);
     }
 
     // endregion

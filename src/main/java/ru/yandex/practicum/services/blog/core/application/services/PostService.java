@@ -3,25 +3,23 @@ package ru.yandex.practicum.services.blog.core.application.services;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
-import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
+import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.*;
+import ru.yandex.practicum.services.blog.core.application.mappers.CommentMapper;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
+import ru.yandex.practicum.services.blog.core.domain.entityobjects.CommentEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectNotFoundException;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.CommentTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +46,11 @@ public class PostService implements IPostService
      */
     private final IImageRepository imageRepository;
 
+    /*
+     * Репозиторий комментариев.
+     */
+    private final ICommentRepository commentRepository;
+
     // endregion
 
     // region Constructors
@@ -55,11 +58,13 @@ public class PostService implements IPostService
     public PostService(
         final IPostRepository postRepository,
         final ITagRepository tagRepository,
-        final IImageRepository imageRepository)
+        final IImageRepository imageRepository,
+        final ICommentRepository commentRepository)
     {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
         this.imageRepository = imageRepository;
+        this.commentRepository = commentRepository;
     }
 
     // endregion
@@ -90,6 +95,7 @@ public class PostService implements IPostService
      * </return>
      **/
     @Override
+    @Transactional
     public PostsPageResponseDto getPostsPage(
             String search,
             Long pageNumber,
@@ -165,6 +171,8 @@ public class PostService implements IPostService
 
             tagRepository.enrichPostsWithTags(posts);
 
+            commentRepository.enrichPostsWithComments(posts);
+
             /*
              * Преобразуем сущности в DTO для ответа.
              */
@@ -196,6 +204,7 @@ public class PostService implements IPostService
      * </return>
      **/
     @Override
+    @Transactional
     public PostResponseDto getPostById(final Long id)
     {
         /*
@@ -215,6 +224,10 @@ public class PostService implements IPostService
         var post = postRepository.findPostById(id);
 
         tagRepository.enrichPostsWithTags(List.of(post));
+
+        var comments = commentRepository.findCommentsByPostId(id);
+
+        post.initializeComments(comments);
 
         return PostMapper.mapToResponseDto(post);
     }
@@ -258,6 +271,7 @@ public class PostService implements IPostService
      * </return>
      **/
     @Override
+    @Transactional
     public PostResponseDto createPost(final CreatePostRequestDto request)
     {
         if (request == null)
@@ -318,6 +332,7 @@ public class PostService implements IPostService
      * @return Статус обновления публикации.
      * </return>
      **/
+    @Override
     @Transactional
     public PostResponseDto updatePostById(final Long id, final UpdatePostRequestDto request)
     {
@@ -394,6 +409,7 @@ public class PostService implements IPostService
      * @return Статус удаления публикации.
      * </return>
      **/
+    @Override
     @Transactional
     public Boolean deletePostById(final Long id)
     {
@@ -453,6 +469,8 @@ public class PostService implements IPostService
      * @return Содержимое изображения публикации.
      * </param>
      **/
+    @Override
+    @Transactional
     public byte[] getPostImageBytesByPostId(Long postId)
     {
         if (postId == null)
@@ -488,6 +506,8 @@ public class PostService implements IPostService
      * Содержимое изображения публикации.
      * </param>
      **/
+    @Override
+    @Transactional
     public void updatePostImage(final Long postId, final MultipartFile imageContent)
     {
         if (postId == null)
@@ -515,6 +535,222 @@ public class PostService implements IPostService
         catch (Exception ex)
         {
             throw new IllegalStateException("Не удалось прочитать изображение", ex);
+        }
+    }
+
+    /**
+     * <summary>
+     * Получение комментариев по идентификатору публикации.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Комментарии публикации.
+     * </return>
+     **/
+    @Override
+    @Transactional
+    public List<CommentResponseDto> getCommentsByPostId(final Long postId)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор поста не может быть пустым.");
+        }
+
+        return commentRepository.findCommentsByPostId(postId)
+                .stream()
+                .map(comment -> CommentMapper.mapToResponseDto(postId, comment))
+                .toList();
+    }
+
+    /**
+     * <summary>
+     * Добавление комментария к публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Новый комментарий к публикации.
+     * </param>
+     * <return>
+     * @return Комментарий к публикации из базы данных сервиса.
+     * </return>
+     **/
+    @Transactional
+    public CommentResponseDto createComment(final Long postId, final CreateCommentRequestDto comment)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не должен быть пустым.");
+        }
+
+        if (comment == null)
+        {
+            throw new ApplicationValidationException(
+                    "Информация о комментарии не должна отсутствовать.");
+        }
+
+        var postEntity = postRepository.findPostById(comment.getPostId());
+
+        if (postEntity == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + comment.getPostId() + "'.");
+        }
+
+        var commentEntity = commentRepository.saveComment(
+                new CommentEntityObject(
+                        new CommentTextValueObject(
+                                comment.getText()
+                        )
+                ),
+                postEntity.getId()
+        );
+
+        if (commentEntity.isEmpty())
+        {
+            throw new IllegalStateException(
+                    "Не удалось сохранить комментарий в базе данных сервиса");
+        }
+
+        return CommentMapper.mapToResponseDto(comment.getPostId(), commentEntity.get());
+    }
+
+    /**
+     * <summary>
+     * Обновления комментария публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="comment">
+     * Обновленный комментарий к публикации.
+     * </param>
+     * <return>
+     * @return Обновленный комментарий к публикации из базы данных сервиса.
+     * </return>
+     **/
+    @Override
+    @Transactional
+    public CommentResponseDto updateComment(final Long postId, final Long commentId, final UpdateCommentRequestDto commentDto)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не должен быть пустым.");
+        }
+
+        if (commentId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор комментария не должен быть пустым.");
+        }
+
+        if (commentDto == null)
+        {
+            throw new ApplicationValidationException(
+                    "Информация о комментарии не должна отсутствовать.");
+        }
+
+        var postEntity = postRepository.findPostById(commentDto.getPostId());
+
+        if (postEntity == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + commentDto.getPostId() + "'.");
+        }
+
+        commentRepository.enrichPostsWithComments(List.of(postEntity));
+
+        var commentExists = postEntity.getComments().stream()
+                .filter(comment ->
+                        Objects.equals(comment.getId(), commentDto.getId()))
+                .findFirst();
+
+        if (commentExists.isEmpty())
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти комментарий с id '" + commentDto.getId() + "'.");
+        }
+
+        var commentExtracted = commentExists.get();
+
+        commentExtracted.changeText(
+                new CommentTextValueObject(
+                        commentDto.getText()));
+
+        var commentEntity = commentRepository.updateComment(
+                commentExtracted,
+                postEntity.getId()
+        );
+
+        if (commentEntity.isEmpty())
+        {
+            throw new IllegalStateException(
+                    "Не удалось обновить комментарий в базе данных сервиса");
+        }
+
+        return CommentMapper.mapToResponseDto(commentDto.getPostId(), commentEntity.get());
+    }
+
+    /**
+     * <summary>
+     * Удаления комментария публикации.
+     * </summary>
+     * <param name="postId">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="commentId">
+     * Уникальный идентификатор комментария.
+     * </param>
+     **/
+    @Override
+    @Transactional
+    public void deleteComment(final Long postId, final Long commentId)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор поста не должен быть пустым."
+            );
+        }
+
+        if (commentId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор комментария не должен быть пустым."
+            );
+        }
+
+        var postExists = postRepository.findPostById(postId);
+
+        if (postExists == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + postId + "'.");
+        }
+
+        commentRepository.enrichPostsWithComments(List.of(postExists));
+
+        var commentExists = postExists.getComments().stream()
+                .anyMatch(comment -> Objects.equals(comment.getId(), commentId));
+
+        if (!commentExists)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти комментарий с id '" + commentId + "'.");
+        }
+
+        var deleted = commentRepository.deleteComment(commentId, postId);
+
+        if (!deleted)
+        {
+            throw new IllegalStateException(
+                    "Не удалось удалить комментарий с id '" + commentId + "' из базы данных сервиса.");
         }
     }
 

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.services.blog.core.domain.valueobjects;
 
-import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.exceptions.ValueObjectIsInvalidException;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.base.BaseValueObject;
 
@@ -8,17 +7,17 @@ import java.util.Objects;
 
 /**
  * <summary>
- * Объект-значение (Value Object), представляющий сообщение публикации.
+ * Объект-значение (Value Object), представляющий сообщение комментария.
  * Инкапсулирует строковое значение сообщения и гарантирует его валидность
  * в соответствии с инвариантами доменной модели.
  * </summary>
  **/
-public final class PostTextValueObject extends BaseValueObject
+public final class CommentTextValueObject extends BaseValueObject
 {
     // region Fields
 
     /**
-     * Строковое значение сообщения публикации.
+     * Строковое значение сообщения комментария.
      **/
     private final String value;
 
@@ -26,7 +25,7 @@ public final class PostTextValueObject extends BaseValueObject
 
     // region Constructors
 
-    public PostTextValueObject(final String value)
+    public CommentTextValueObject(final String value)
     {
         this.value = isValid(value);
     }
@@ -37,10 +36,10 @@ public final class PostTextValueObject extends BaseValueObject
 
     /**
      * <summary>
-     * Возвращает строковое значение сообщения публикации.
+     * Возвращает строковое значение сообщения комментария.
      * </summary>
      * <return>
-     * @return Значение сообщения.
+     * @return Значение сообщения комментария.
      * </return>
      **/
     public final  String getValue()
@@ -54,7 +53,7 @@ public final class PostTextValueObject extends BaseValueObject
 
     /**
      * <summary>
-     * Проверяет корректность переданного значения сообщения.
+     * Проверяет корректность переданного значения сообщения комментария.
      * </summary>
      * @param value Проверяемое значение.
      * @return Валидное значение сообщения.
@@ -67,7 +66,7 @@ public final class PostTextValueObject extends BaseValueObject
                 value.isEmpty())
         {
             throw new ValueObjectIsInvalidException(
-                    "Сообщение не может быть пустым",
+                    "Сообщение комментария не может быть пустым",
                     "title");
         }
         else
@@ -78,10 +77,10 @@ public final class PostTextValueObject extends BaseValueObject
 
     /**
      * <summary>
-     * Сравнивает текущий экземпляр с другим объектом по значению сообщения.
+     * Сравнивает текущий экземпляр с другим объектом по значению сообщения комментария.
      * </summary>
      * @param obj Объект для сравнения.
-     * @return true, если значения заголовков равны; иначе false.
+     * @return true, если значения сообщений комментариев равны; иначе false.
      **/
     @Override
     public boolean equals(final Object obj)
@@ -91,7 +90,7 @@ public final class PostTextValueObject extends BaseValueObject
             return true;
         }
 
-        if (obj instanceof PostTextValueObject other)
+        if (obj instanceof CommentTextValueObject other)
         {
             return Objects.equals(value, other.value);
         }
@@ -101,7 +100,7 @@ public final class PostTextValueObject extends BaseValueObject
 
     /**
      * <summary>
-     * Вычисляет хэш-код на основе значения сообщения.
+     * Вычисляет хэш-код на основе значения сообщения комментария.
      * </summary>
      * @return Целочисленное значение хэш-кода.
      **/
@@ -115,7 +114,7 @@ public final class PostTextValueObject extends BaseValueObject
      * <summary>
      * Возвращает строковое представление объекта.
      * </summary>
-     * @return Строковое значение сообщения.
+     * @return Строковое значение сообщения комментария.
      **/
     @Override
     public String toString()

@@ -2,10 +2,7 @@ package ru.yandex.practicum.services.blog.core.application.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.*;
 import ru.yandex.practicum.services.blog.core.application.services.PostService;
 
 /**
@@ -44,9 +41,10 @@ public class ApplicationConfiguration
     public IPostService postService(
             final IPostRepository postRepository,
             final ITagRepository tagRepository,
-            final IImageRepository imageRepository)
+            final IImageRepository imageRepository,
+            final ICommentRepository commentRepository)
     {
-        return new PostService(postRepository, tagRepository, imageRepository);
+        return new PostService(postRepository, tagRepository, imageRepository,  commentRepository);
     }
 
     // endregion

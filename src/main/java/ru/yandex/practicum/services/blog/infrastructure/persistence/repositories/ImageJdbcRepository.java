@@ -12,7 +12,7 @@ import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepos
  **/
 public final class ImageJdbcRepository implements IImageRepository
 {
-// region Fields
+    // region Fields
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 

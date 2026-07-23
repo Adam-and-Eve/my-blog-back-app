@@ -33,14 +33,14 @@ public final class PostEntityObject extends BaseEntityObject
     private final Set<TagEntityObject> tags;
 
     /**
+     * Список объектов-сущностей (Entity Object), представляющих комментарии публикации.
+     **/
+    private final Set<CommentEntityObject> comments;
+
+    /**
      * Количество лайков публикации.
      **/
     private Long likesCount;
-
-    /**
-     * Количество комментариев публикации.
-     **/
-    private Long commentsCount;
 
     // endregion
 
@@ -59,9 +59,9 @@ public final class PostEntityObject extends BaseEntityObject
 
         this.tags = new HashSet<>();
 
-        this.likesCount = 0L;
+        this.comments = new HashSet<>();
 
-        this.commentsCount = 0L;
+        this.likesCount = 0L;
     }
 
     public PostEntityObject(
@@ -81,9 +81,9 @@ public final class PostEntityObject extends BaseEntityObject
 
         this.tags = new HashSet<>();
 
-        this.likesCount = Objects.requireNonNull(likesCount);
+        this.comments = new HashSet<>();
 
-        this.commentsCount = 0L;
+        this.likesCount = Objects.requireNonNull(likesCount);
     }
 
     // endregion
@@ -132,6 +132,19 @@ public final class PostEntityObject extends BaseEntityObject
 
     /**
      * <summary>
+     * Возвращает список комментариев публикации.
+     * </summary>
+     * <return>
+     * @return Список объектов-сущностей (Entity Object) комментариев публикации.
+     * </return>
+     **/
+    public final synchronized Set<CommentEntityObject> getComments()
+    {
+        return Set.copyOf(comments);
+    }
+
+    /**
+     * <summary>
      * Возвращает количество лайков публикации.
      * </summary>
      * <return>
@@ -153,7 +166,8 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized Long getCommentsCount()
     {
-        return commentsCount;
+
+        return (long)comments.size();
     }
 
     // endregion
@@ -226,6 +240,38 @@ public final class PostEntityObject extends BaseEntityObject
         {
             super.markUpdatedAt();
         }
+    }
+
+    /**
+     * <summary>
+     * Добавляет комментарий к публикации.
+     * При изменении состояния обновляет метку времени последнего изменения.
+     * </summary>
+     * @param comment Новый комментарий для добавления.
+     **/
+    public final synchronized void addComment(final CommentEntityObject comment)
+    {
+        Objects.requireNonNull(comment);
+
+        if (comments.add(comment))
+        {
+            super.markUpdatedAt();
+        }
+    }
+
+    /**
+     * <summary>
+     * Инициализирует список комментариев при загрузке из репозитория.
+     * </summary>
+     * @param comments Комментарии из базы данных сервиса.
+     **/
+    public final synchronized void initializeComments(final Collection<CommentEntityObject> comments)
+    {
+        Objects.requireNonNull(comments);
+
+        this.comments.clear();
+
+        this.comments.addAll(comments);
     }
 
     /**

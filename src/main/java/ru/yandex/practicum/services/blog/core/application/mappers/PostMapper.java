@@ -62,7 +62,7 @@ public final class PostMapper
                             .map(tag -> tag.getName().getValue())
                             .collect(Collectors.toList()),
                     post.getLikesCount(),
-                    0L
+                    post.getCommentsCount()
             );
         }
     }
