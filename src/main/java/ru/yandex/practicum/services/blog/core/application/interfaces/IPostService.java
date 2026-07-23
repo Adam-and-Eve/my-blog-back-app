@@ -1,6 +1,7 @@
 package ru.yandex.practicum.services.blog.core.application.interfaces;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
@@ -121,6 +122,32 @@ public interface IPostService
      * </return>
      **/
     public byte[] getDefaultImage();
+
+    /**
+     * <summary>
+     * Поиск изображения публикации в базе данных сервиса.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Содержимое изображения публикации.
+     * </param>
+     **/
+    public byte[] getPostImageBytesByPostId(Long postId);
+
+    /**
+     * <summary>
+     * Сохранение и изменение изображения публикации в базе данных сервиса.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <param name="imageContent">
+     * Содержимое изображения публикации.
+     * </param>
+     **/
+    public void updatePostImage(final Long postId, final MultipartFile imageContent);
 
     // endregion
 }

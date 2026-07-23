@@ -2,11 +2,13 @@ package ru.yandex.practicum.services.blog.core.application.services;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
+import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
@@ -41,16 +43,23 @@ public class PostService implements IPostService
      */
     private final ITagRepository tagRepository;
 
+    /*
+     * Репозиторий изображений.
+     */
+    private final IImageRepository imageRepository;
+
     // endregion
 
     // region Constructors
 
     public PostService(
         final IPostRepository postRepository,
-        final ITagRepository tagRepository)
+        final ITagRepository tagRepository,
+        final IImageRepository imageRepository)
     {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
+        this.imageRepository = imageRepository;
     }
 
     // endregion
@@ -430,6 +439,82 @@ public class PostService implements IPostService
             throw new IllegalStateException(
                     "Не удалось прочитать default-post.png",
                     ex);
+        }
+    }
+
+    /**
+     * <summary>
+     * Поиск изображения публикации в базе данных сервиса.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Содержимое изображения публикации.
+     * </param>
+     **/
+    public byte[] getPostImageBytesByPostId(Long postId)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не должен быть пустым");
+        }
+
+        if (postRepository.findPostById(postId) == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + postId + "'.");
+        }
+
+        var imageContent = imageRepository.findPostImageBytesByPostId(postId);
+
+        if (imageContent == null)
+        {
+            return getDefaultImage();
+        }
+
+        return imageContent;
+    }
+
+    /**
+     * <summary>
+     * Сохранение и изменение изображения публикации в базе данных сервиса.
+     * </summary>
+     * <param name="postId">
+     * Идентификатор публикации.
+     * </param>
+     * <param name="imageContent">
+     * Содержимое изображения публикации.
+     * </param>
+     **/
+    public void updatePostImage(final Long postId, final MultipartFile imageContent)
+    {
+        if (postId == null)
+        {
+            throw new ApplicationValidationException(
+                    "Идентификатор публикации не должен быть пустым.");
+        }
+
+        if (imageContent == null || imageContent.isEmpty())
+        {
+            throw new ApplicationValidationException(
+                    "Изображение не может быть пустым.");
+        }
+
+        if (postRepository.findPostById(postId) == null)
+        {
+            throw new EntityObjectNotFoundException(
+                    "Не удалось найти публикацию с id '" + postId + "'.");
+        }
+
+        try
+        {
+            imageRepository.saveOrUpdatePostImage(postId, imageContent.getBytes());
+        }
+        catch (Exception ex)
+        {
+            throw new IllegalStateException("Не удалось прочитать изображение", ex);
         }
     }
 

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostsPageResponseDto;
@@ -105,42 +106,6 @@ public final class PostController
 
     /**
      * <summary>
-     * Получение изображения публикации.
-     * Возвращает массив байт изображения для отображения в ленте или на странице поста.
-     * </summary>
-     * <param name="id">
-     * Уникальный идентификатор публикации.
-     * </param>
-     * <return>
-     * @return Массив байт изображения с заголовком Content-Type: image/png.
-     * </return>
-     **/
-    @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getPostImage(
-            @PathVariable("id") final Long id
-    )
-    {
-        if (postService.getPostById(id) == null)
-        {
-            return ResponseEntity.notFound().build();
-        }
-
-        var imageContent = postService.getDefaultImage();
-
-        if (imageContent == null ||
-            imageContent.length == 0)
-        {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .header(HttpHeaders.CACHE_CONTROL, "no-store")
-                .body(imageContent);
-    }
-
-    /**
-     * <summary>
      * Увеличивает количество лайков публикации.
      * </summary>
      * <param name="id">
@@ -216,6 +181,66 @@ public final class PostController
         postService.deletePostById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * <summary>
+     * Получение изображения публикации.
+     * Возвращает массив байт изображения для отображения в ленте или на странице поста.
+     * </summary>
+     * <param name="id">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <return>
+     * @return Массив байт изображения с заголовком Content-Type: image/png.
+     * </return>
+     **/
+    @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getPostImage(
+            @PathVariable("id") final Long id
+    )
+    {
+        var imageContent = postService.getPostImageBytesByPostId(id);
+
+        if (imageContent == null)
+        {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+               .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(imageContent);
+    }
+
+    /**
+     * <summary>
+     * Обновление изображения публикации.
+     * </summary>
+     * <param name="id">
+     * Уникальный идентификатор публикации.
+     * </param>
+     * <param name="image">
+     * Изображение публикации.
+     * </param>
+     * <return>
+     * @return Статус выполнения операции.
+     * </return>
+     **/
+    @PutMapping(value = "/{id}/image")
+    public ResponseEntity<Void> updatePostImage(
+            @PathVariable("id") final Long id,
+            @RequestParam("image") final MultipartFile image
+    )
+    {
+        if (image == null || image.isEmpty())
+        {
+            return ResponseEntity.notFound().build();
+        }
+
+        postService.updatePostImage(id, image);
+
+        return ResponseEntity.ok().build();
     }
 
     // endregion
