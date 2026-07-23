@@ -1,5 +1,6 @@
 package ru.yandex.practicum.services.blog.core.application.services;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.CreatePostRequestDto;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.PostResponseDto;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.services.blog.core.application.dtos.posts.UpdatePostR
 import ru.yandex.practicum.services.blog.core.application.exceptions.ApplicationValidationException;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
 import ru.yandex.practicum.services.blog.core.application.mappers.PostMapper;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
@@ -15,7 +17,9 @@ import ru.yandex.practicum.services.blog.core.domain.exceptions.EntityObjectNotF
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -32,13 +36,21 @@ public class PostService implements IPostService
      */
     private final IPostRepository postRepository;
 
+    /*
+     * Репозиторий тегов.
+     */
+    private final ITagRepository tagRepository;
+
     // endregion
 
     // region Constructors
 
-    public PostService(final IPostRepository postRepository)
+    public PostService(
+        final IPostRepository postRepository,
+        final ITagRepository tagRepository)
     {
         this.postRepository = postRepository;
+        this.tagRepository = tagRepository;
     }
 
     // endregion
@@ -142,6 +154,8 @@ public class PostService implements IPostService
                     offset,
                     pageSize);
 
+            tagRepository.enrichPostsWithTags(posts);
+
             /*
              * Преобразуем сущности в DTO для ответа.
              */
@@ -190,6 +204,8 @@ public class PostService implements IPostService
          * Выполняем поиск публикации в репозитории.
          */
         var post = postRepository.findPostById(id);
+
+        tagRepository.enrichPostsWithTags(List.of(post));
 
         return PostMapper.mapToResponseDto(post);
     }
@@ -262,6 +278,16 @@ public class PostService implements IPostService
                     "Созданный объект публикации не найден.");
         }
 
+        if (request.getTags() != null &&
+            !request.getTags().isEmpty())
+        {
+            var tagIds = tagRepository.getOrCreateTags(request.getTags());
+
+            tagRepository.updatePostTags(postEntity.getId(), tagIds);
+
+            tagRepository.enrichPostsWithTags(List.of(postEntity));
+        }
+
         return new PostResponseDto(
                 postEntity.getId(),
                 postEntity.getTitle().getValue(),
@@ -328,6 +354,16 @@ public class PostService implements IPostService
             );
         }
 
+        if (request.getTags() != null &&
+            !request.getTags().isEmpty())
+        {
+            var tagIds = tagRepository.getOrCreateTags(request.getTags());
+
+            tagRepository.updatePostTags(updatedPostEntity.getId(), tagIds);
+        }
+
+        tagRepository.clearOrphanedTags();
+
         return new PostResponseDto(
                 updatedPostEntity.getId(),
                 updatedPostEntity.getTitle().getValue(),
@@ -368,7 +404,33 @@ public class PostService implements IPostService
             );
         }
 
+        tagRepository.clearOrphanedTags();
+
         return true;
+    }
+
+    /**
+     * <summary>
+     * Получение изображения публикации по умолчанию.
+     * </summary>
+     * <return>
+     * @return Изображение публикации по умолчанию.
+     * </return>
+     **/
+    public byte[] getDefaultImage()
+    {
+        var resource = new ClassPathResource("static/images/default-post.png");
+
+        try (var inputStream = resource.getInputStream())
+        {
+            return inputStream.readAllBytes();
+        }
+        catch (IOException ex)
+        {
+            throw new IllegalStateException(
+                    "Не удалось прочитать default-post.png",
+                    ex);
+        }
     }
 
     // endregion

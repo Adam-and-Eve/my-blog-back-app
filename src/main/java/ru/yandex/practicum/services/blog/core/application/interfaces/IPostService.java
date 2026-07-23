@@ -112,5 +112,15 @@ public interface IPostService
     @Transactional
     public Boolean deletePostById(final Long id);
 
+    /**
+     * <summary>
+     * Получение изображения публикации по умолчанию.
+     * </summary>
+     * <return>
+     * @return Изображение публикации по умолчанию.
+     * </return>
+     **/
+    public byte[] getDefaultImage();
+
     // endregion
 }

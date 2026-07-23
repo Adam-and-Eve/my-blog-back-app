@@ -104,20 +104,17 @@ public final class PostJdbcRepository implements IPostRepository
 
         sqlParams.addValue("limit", limit);
 
-        /*
-         * Получаем "голые" посты (без тегов) из таблицы Posts.
-         */
-        final var posts = jdbcTemplate.query(
-                sqlQuery.toString(),
-                sqlParams,
-                new PostRowMapper());
-
-        /*
-         * Обогащаем полученные посты тегами.
-         */
-        enrichPostsWithTags(posts);
-
-        return posts;
+        try
+        {
+            return jdbcTemplate.query(
+                    sqlQuery.toString(),
+                    sqlParams,
+                    new PostRowMapper());
+        }
+        catch (EmptyResultDataAccessException ex)
+        {
+            return List.of();
+        }
     }
 
     /**
@@ -157,21 +154,11 @@ public final class PostJdbcRepository implements IPostRepository
 
         try
         {
-            /*
-             * Получаем "голый" пост (без тегов) из таблицы Posts.
-             */
-            var post = jdbcTemplate.queryForObject(
+            return jdbcTemplate.queryForObject(
                     sqlQuery.toString(),
                     sqlParams,
                     new PostRowMapper()
             );
-
-            /*
-             * Обогащаем полученный пост тегами.
-             */
-            enrichPostsWithTags(List.of(post));
-
-            return post;
         }
         catch (EmptyResultDataAccessException ex)
         {
@@ -254,76 +241,6 @@ public final class PostJdbcRepository implements IPostRepository
         catch (EmptyResultDataAccessException ex)
         {
             return Optional.empty();
-        }
-    }
-
-    /**
-     * <summary>
-     * Обогащает переданный список публикаций связанными с ними тегами.
-     * Выполняет пакетный запрос к базе данных для извлечения
-     * всех тегов, привязанных к указанным постам, и распределяет их по
-     * соответствующим объектам доменных сущностей.
-     * </summary>
-     * <param name="posts">
-     * Список доменных сущностей публикаций, которые необходимо обогатить тегами.
-     * Если список пуст или равен null, выполнение метода прерывается без обращения к БД.
-     * </param>
-     **/
-    private void enrichPostsWithTags(final List<PostEntityObject> posts)
-    {
-        var sqlQuery = new StringBuilder();
-        var sqlParams = new MapSqlParameterSource();
-
-        if (posts == null || posts.isEmpty())
-        {
-            return;
-        }
-
-        /*
-         * Индексируем посты по их идентификатору для обеспечения доступа за O(1).
-         */
-        final var postMap = posts.stream()
-                .collect(Collectors.toMap(
-                        PostEntityObject::getId,
-                        Function.identity()
-                ));
-
-        sqlParams = new MapSqlParameterSource(
-                "postIds",
-                postMap.keySet()
-        );
-
-        /*
-         * Формируем базовую выборку полей сущности.
-         */
-        sqlQuery.append("SELECT [PT].[PostId], ")
-                .append("[T].[Id] AS [TagId], ")
-                .append("[T].[Name] ")
-                .append("FROM [dbo].[PostTags] AS [PT] ")
-                .append("JOIN [dbo].[Tags] AS [T] ")
-                .append("ON [T].[Id] = [PT].[TagId] ")
-                .append("WHERE [PT].[PostId] IN(:postIds)");
-
-        /*
-         * Получаем плоский список проекций (PostId + TagEntityObject).
-         */
-        final var projections = jdbcTemplate.query(
-                sqlQuery.toString(),
-                sqlParams,
-                new PostTagRowMapper()
-        );
-
-        /*
-         * Распределяем восстановленные сущности тегов по соответствующим постам.
-         */
-        for (final var projection : projections)
-        {
-            final var post = postMap.get(projection.getPostId());
-
-            if (post != null)
-            {
-                post.addTag(projection.getTag());
-            }
         }
     }
 

@@ -10,8 +10,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.options.PersistenceOptions;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.PostJdbcRepository;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.TagJdbcRepository;
 
 import javax.sql.DataSource;
 
@@ -123,6 +125,23 @@ public class PersistenceConfiguration
     public IPostRepository postRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
         return new PostJdbcRepository(namedParameterJdbcTemplate);
+    }
+
+    /**
+     * <summary>
+     * Создает бин репозитория тегов и внедряет в него NamedParameterJdbcTemplate.
+     * </summary>
+     * <param name="namedParameterJdbcTemplate">
+     * Настроенный шаблон JDBC.
+     * </param>
+     * <return>
+     * @return Реализация ITagRepository.
+     * </return>
+     **/
+    @Bean
+    public ITagRepository tagRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    {
+        return new TagJdbcRepository(namedParameterJdbcTemplate);
     }
 
     // endregion

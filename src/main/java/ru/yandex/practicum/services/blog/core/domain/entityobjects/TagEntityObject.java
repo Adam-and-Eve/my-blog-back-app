@@ -1,7 +1,7 @@
 package ru.yandex.practicum.services.blog.core.domain.entityobjects;
 
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagNameObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.TagNameObject;
 
 import java.util.Objects;
 
@@ -17,13 +17,13 @@ public final class TagEntityObject extends BaseEntityObject
     /**
      * Объект-значение (Value Object), представляющий значение тега.
      **/
-    private PostTagNameObject name;
+    private TagNameObject name;
 
     // endregion
 
     // region Constructors
 
-    public TagEntityObject(final PostTagNameObject name)
+    public TagEntityObject(final TagNameObject name)
     {
         super();
 
@@ -32,7 +32,7 @@ public final class TagEntityObject extends BaseEntityObject
 
     public TagEntityObject(
             final Long id,
-            final PostTagNameObject name)
+            final TagNameObject name)
     {
         super(id, null, null);
 
@@ -51,7 +51,7 @@ public final class TagEntityObject extends BaseEntityObject
      * @return Объект-значение тега.
      * </return>
      **/
-    public final synchronized PostTagNameObject getName()
+    public final synchronized TagNameObject getName()
     {
         return name;
     }
@@ -67,7 +67,7 @@ public final class TagEntityObject extends BaseEntityObject
      * </summary>
      * @param name Новое значение тега.
      **/
-    public final synchronized void changeName(final PostTagNameObject name)
+    public final synchronized void changeName(final TagNameObject name)
     {
         if (!this.name.equals(name))
         {

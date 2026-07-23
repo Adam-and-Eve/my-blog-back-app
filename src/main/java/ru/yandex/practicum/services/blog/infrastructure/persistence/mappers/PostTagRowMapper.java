@@ -2,7 +2,7 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.TagEntityObject;
-import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTagNameObject;
+import ru.yandex.practicum.services.blog.core.domain.valueobjects.TagNameObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.projections.PostTagProjection;
 
 import java.sql.ResultSet;
@@ -28,7 +28,7 @@ public final class PostTagRowMapper implements RowMapper<PostTagProjection>
                 rs.getLong("PostId"),
                 new TagEntityObject(
                         rs.getLong("TagId"),
-                        new PostTagNameObject(rs.getString("Name"))
+                        new TagNameObject(rs.getString("Name"))
                 )
         );
     }
