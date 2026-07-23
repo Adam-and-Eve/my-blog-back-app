@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
 
 import java.util.List;
@@ -30,8 +28,6 @@ public final class PostController
      * Сервис для выполнения операций над публикациями.
      **/
     private final IPostService postService;
-    private final IPostRepository postRepository;
-    private final ICommentRepository commentRepository;
 
     // endregion
 
@@ -39,12 +35,9 @@ public final class PostController
 
     @Autowired
     public PostController(
-            IPostService postService,
-            IPostRepository postRepository, ICommentRepository commentRepository)
+            IPostService postService)
     {
         this.postService = postService;
-        this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
     }
 
     // endregion
