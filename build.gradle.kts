@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("war")
     id("org.gretty") version "5.0.2"
 }
 
