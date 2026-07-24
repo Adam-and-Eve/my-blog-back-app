@@ -23,6 +23,10 @@ dependencies {
 
     testImplementation("org.springframework:spring-test:7.0.7")
 
+    testImplementation("org.mockito:mockito-core:5.23.0")
+
+    testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
+
     implementation("org.springframework:spring-webmvc:7.0.7")
     implementation("tools.jackson.core:jackson-databind:3.1.0")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0")
@@ -34,6 +38,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
 }
 
 gretty {
