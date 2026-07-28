@@ -2,6 +2,7 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.ImageRepository;
 
 /**
@@ -10,7 +11,8 @@ import ru.yandex.practicum.services.blog.core.application.interfaces.ImageReposi
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class ImageJdbcRepositoryImpl implements ImageRepository
+@Repository
+public class ImageJdbcRepositoryImpl implements ImageRepository
 {
     // region Fields
 

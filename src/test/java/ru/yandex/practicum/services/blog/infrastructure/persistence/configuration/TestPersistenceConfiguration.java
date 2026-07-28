@@ -16,7 +16,6 @@ import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepo
 import ru.yandex.practicum.services.blog.core.application.interfaces.ImageRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.options.PersistenceOptions;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.CommentJdbcRepositoryImpl;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.ImageJdbcRepositoryImpl;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.PostJdbcRepositoryImpl;

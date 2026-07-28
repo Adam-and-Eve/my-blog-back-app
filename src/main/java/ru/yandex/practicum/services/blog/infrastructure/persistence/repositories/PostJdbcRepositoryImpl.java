@@ -3,6 +3,7 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
@@ -18,7 +19,8 @@ import java.util.Optional;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class PostJdbcRepositoryImpl implements PostRepository
+@Repository
+public class PostJdbcRepositoryImpl implements PostRepository
 {
     // region Fields
 

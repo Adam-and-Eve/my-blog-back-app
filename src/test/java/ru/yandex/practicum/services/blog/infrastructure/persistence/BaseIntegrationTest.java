@@ -5,7 +5,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.PersistenceConfiguration;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.TestPersistenceConfiguration;
 
 /**
