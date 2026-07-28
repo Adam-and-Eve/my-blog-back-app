@@ -11,7 +11,7 @@ import java.util.Optional;
  * Основной контракт репозитория для работы с комментариями на уровне базы данных.
  * </summary>
  **/
-public interface ICommentRepository
+public interface CommentRepository
 {
     // region Methods
 

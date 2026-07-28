@@ -19,19 +19,19 @@ public class CreatePostRequestDto
      * Заголовок публикации.
      **/
     @JsonProperty("title")
-    private String _title;
+    private String title;
 
     /**
      * Сообщение публикации в формате Markdown.
      **/
     @JsonProperty("text")
-    private String _text;
+    private String text;
 
     /**
      * Список тегов, связанных с публикацией.
      **/
     @JsonProperty("tags")
-    private List<String> _tags;
+    private List<String> tags;
 
     // endregion
 
@@ -48,9 +48,9 @@ public class CreatePostRequestDto
             final List<String> tags
     )
     {
-        _title = title;
-        _text = text;
-        _tags = tags;
+        this.title = title;
+        this.text = text;
+        this.tags = tags;
     }
 
     // endregion
@@ -62,7 +62,7 @@ public class CreatePostRequestDto
      **/
     public String getTitle()
     {
-        return _title;
+        return title;
     }
 
     /**
@@ -70,7 +70,7 @@ public class CreatePostRequestDto
      **/
     public String getText()
     {
-        return _text;
+        return text;
     }
 
     /**
@@ -78,7 +78,7 @@ public class CreatePostRequestDto
      **/
     public List<String> getTags()
     {
-        return _tags;
+        return tags;
     }
 
     // endregion

@@ -3,6 +3,7 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.configurati
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,15 +13,15 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ImageRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.configuration.options.PersistenceOptions;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.CommentJdbcRepository;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.ImageJdbcRepository;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.PostJdbcRepository;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.TagJdbcRepository;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.CommentJdbcRepositoryImpl;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.ImageJdbcRepositoryImpl;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.PostJdbcRepositoryImpl;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.repositories.TagJdbcRepositoryImpl;
 
 import javax.sql.DataSource;
 
@@ -36,6 +37,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
+@Profile("!test")
 public class PersistenceConfiguration
 {
     // region Beans
@@ -153,9 +155,9 @@ public class PersistenceConfiguration
      * </return>
      **/
     @Bean
-    public IPostRepository postRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    public PostRepository postRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
-        return new PostJdbcRepository(namedParameterJdbcTemplate);
+        return new PostJdbcRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     /**
@@ -170,9 +172,9 @@ public class PersistenceConfiguration
      * </return>
      **/
     @Bean
-    public ITagRepository tagRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    public TagRepository tagRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
-        return new TagJdbcRepository(namedParameterJdbcTemplate);
+        return new TagJdbcRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     /**
@@ -187,9 +189,9 @@ public class PersistenceConfiguration
      * </return>
      **/
     @Bean
-    public IImageRepository imageRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    public ImageRepository imageRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
-        return new ImageJdbcRepository(namedParameterJdbcTemplate);
+        return new ImageJdbcRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     /**
@@ -204,9 +206,9 @@ public class PersistenceConfiguration
      * </return>
      **/
     @Bean
-    public ICommentRepository commentRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+    public CommentRepository commentRepository(final NamedParameterJdbcTemplate namedParameterJdbcTemplate)
     {
-        return new CommentJdbcRepository(namedParameterJdbcTemplate);
+        return new CommentJdbcRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     // endregion

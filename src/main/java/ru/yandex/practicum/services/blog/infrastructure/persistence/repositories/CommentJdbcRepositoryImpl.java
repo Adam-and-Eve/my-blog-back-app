@@ -2,16 +2,14 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.CommentEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.CommentRowMapper;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostCommentRowMapper;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.projections.PostCommentProjection;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class CommentJdbcRepository implements ICommentRepository
+public final class CommentJdbcRepositoryImpl implements CommentRepository
 {
     // region Fields
 
@@ -32,7 +30,7 @@ public final class CommentJdbcRepository implements ICommentRepository
 
     // region Constructors
 
-    public CommentJdbcRepository(final NamedParameterJdbcTemplate jdbcTemplate)
+    public CommentJdbcRepositoryImpl(final NamedParameterJdbcTemplate jdbcTemplate)
     {
         this.jdbcTemplate = jdbcTemplate;
     }

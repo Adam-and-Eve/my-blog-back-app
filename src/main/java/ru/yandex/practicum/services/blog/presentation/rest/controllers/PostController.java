@@ -1,13 +1,13 @@
 package ru.yandex.practicum.services.blog.presentation.rest.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostService;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostImageService;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostService;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostCommentService;
 
 import java.util.List;
 
@@ -27,7 +27,17 @@ public final class PostController
     /**
      * Сервис для выполнения операций над публикациями.
      **/
-    private final IPostService postService;
+    private final PostService postService;
+
+    /**
+     * Сервис для выполнения операций над комментариями публикаций.
+     **/
+    private final PostCommentService postCommentService;
+
+    /**
+     * Сервис для выполнения операций над изображениями публикаций.
+     **/
+    private final PostImageService postImageService;
 
     // endregion
 
@@ -35,9 +45,13 @@ public final class PostController
 
     @Autowired
     public PostController(
-            IPostService postService)
+            final PostService postService,
+            final PostCommentService postCommentService,
+            final PostImageService postImageService)
     {
         this.postService = postService;
+        this.postCommentService = postCommentService;
+        this.postImageService = postImageService;
     }
 
     // endregion
@@ -92,10 +106,8 @@ public final class PostController
     public ResponseEntity<PostResponseDto> getPostById(
             @PathVariable("id") final Long id)
     {
-        // Делегируем выполнение бизнес-логики сервису слоя Application.
         var responseDto = postService.getPostById(id);
 
-        // Возвращаем результат клиенту.
         return ResponseEntity.ok(responseDto);
     }
 
@@ -138,7 +150,7 @@ public final class PostController
          */
         var postResponseDto = postService.createPost(request);
 
-        return ResponseEntity.ok(postResponseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
     }
 
     /**
@@ -195,7 +207,7 @@ public final class PostController
             @PathVariable("id") final Long id
     )
     {
-        var imageContent = postService.getPostImageBytesByPostId(id);
+        var imageContent = postImageService.getPostImageBytesByPostId(id);
 
         if (imageContent == null)
         {
@@ -230,10 +242,22 @@ public final class PostController
     {
         if (image == null || image.isEmpty())
         {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
 
-        postService.updatePostImage(id, image);
+        if (!MediaType.IMAGE_PNG_VALUE.equalsIgnoreCase(image.getContentType()))
+        {
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
+        }
+
+        try
+        {
+            postImageService.updatePostImage(id, image.getBytes());
+        }
+        catch (Exception ex)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok().build();
     }
@@ -253,7 +277,12 @@ public final class PostController
     public ResponseEntity<List<CommentResponseDto>> getPostComments(
             @PathVariable("id") final Long id)
     {
-        var comments = postService.getCommentsByPostId(id);
+        if (postService.getPostById(id)  == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        var comments = postCommentService.getCommentsByPostId(id);
 
         return ResponseEntity.ok(comments);
     }
@@ -275,9 +304,9 @@ public final class PostController
             @PathVariable("id") final Long id,
             @RequestBody final CreateCommentRequestDto comment)
     {
-        final var response = postService.createComment(id, comment);
+        final var response = postCommentService.createComment(id, comment);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -298,9 +327,19 @@ public final class PostController
             @PathVariable("commentId") final Long commentId,
             @RequestBody final UpdateCommentRequestDto commentDto)
     {
-        final var response = postService.updateComment(postId, commentId, commentDto);
+        if (postService.getPostById(postId)  == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
-        return ResponseEntity.ok(response);
+        if (postCommentService.getCommentsByPostId(postId) == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        final var response = postCommentService.updateComment(postId, commentId, commentDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
@@ -320,9 +359,9 @@ public final class PostController
             @PathVariable("postId") final Long postId,
             @PathVariable("commentId") final Long commentId)
     {
-        postService.deleteComment(postId, commentId);
+        postCommentService.deleteComment(postId, commentId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // endregion

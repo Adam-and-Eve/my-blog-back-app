@@ -27,7 +27,7 @@ public final class TagEntityObject extends BaseEntityObject
     {
         super();
 
-        this.name = Objects.requireNonNull(name);
+        this.name = Objects.requireNonNull(name, "Объект тега не может быть null.");
     }
 
     public TagEntityObject(
@@ -36,7 +36,7 @@ public final class TagEntityObject extends BaseEntityObject
     {
         super(id, null, null);
 
-        this.name = Objects.requireNonNull(name);
+        this.name = Objects.requireNonNull(name, "Объект тега не может быть null.");
     }
 
     // endregion
@@ -69,6 +69,8 @@ public final class TagEntityObject extends BaseEntityObject
      **/
     public final synchronized void changeName(final TagNameObject name)
     {
+        Objects.requireNonNull(name, "Объект тега не может быть null.");
+
         if (!this.name.equals(name))
         {
             this.name = name;

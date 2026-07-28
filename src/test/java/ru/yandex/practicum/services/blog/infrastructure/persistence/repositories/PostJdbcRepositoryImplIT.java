@@ -3,16 +3,16 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
 
-public class PostJdbcRepositoryIT extends BaseIntegrationTest
+public class PostJdbcRepositoryImplIT extends BaseIntegrationTest
 {
     @Autowired
-    private IPostRepository postRepository;
+    private PostRepository postRepository;
 
     /**
      * <summary>

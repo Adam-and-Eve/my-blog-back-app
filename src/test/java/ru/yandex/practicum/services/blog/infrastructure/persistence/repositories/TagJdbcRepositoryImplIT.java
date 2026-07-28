@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
@@ -21,13 +21,13 @@ import java.util.List;
  * Проверяют пакетные операции, механизмы связывания тегов с публикациями и очистку сиротских записей.
  * </summary>
  **/
-public final class TagJdbcRepositoryIT extends BaseIntegrationTest
+public final class TagJdbcRepositoryImplIT extends BaseIntegrationTest
 {
     @Autowired
-    private ITagRepository tagRepository;
+    private TagRepository tagRepository;
 
     @Autowired
-    private IPostRepository postRepository;
+    private PostRepository postRepository;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;

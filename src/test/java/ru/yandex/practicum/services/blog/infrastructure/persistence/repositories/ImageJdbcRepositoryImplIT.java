@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IImageRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.ImageRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
@@ -18,13 +18,13 @@ import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrat
  * Проверяют механизмы сохранения, обновления (upsert) и чтения бинарных данных изображений публикаций.
  * </summary>
  **/
-public final class ImageJdbcRepositoryIT extends BaseIntegrationTest
+public final class ImageJdbcRepositoryImplIT extends BaseIntegrationTest
 {
     @Autowired
-    private IImageRepository imageRepository;
+    private ImageRepository imageRepository;
 
     @Autowired
-    private IPostRepository postRepository;
+    private PostRepository postRepository;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;

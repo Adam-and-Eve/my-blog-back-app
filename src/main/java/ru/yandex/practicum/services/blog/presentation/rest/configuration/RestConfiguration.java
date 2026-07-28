@@ -20,7 +20,8 @@ import ru.yandex.practicum.services.blog.infrastructure.persistence.configuratio
 @Import({
         ApplicationConfiguration.class,
         PersistenceConfiguration.class,
-        WebConfiguration.class
+        WebConfiguration.class,
+        ExceptionConfiguration.class
 })
 public class RestConfiguration
 {

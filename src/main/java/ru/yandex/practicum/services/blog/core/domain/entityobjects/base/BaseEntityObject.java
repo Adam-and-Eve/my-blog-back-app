@@ -48,8 +48,8 @@ public abstract class BaseEntityObject
     )
     {
         this.id = id;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.createdAt = createdAt != null ? createdAt : OffsetDateTime.now();
+        this.updatedAt = updatedAt != null ? updatedAt : this.createdAt;
     }
 
     // endregion
@@ -64,7 +64,7 @@ public abstract class BaseEntityObject
      * @return Уникальный идентификатор сущности.
      * </return>
      **/
-    public final synchronized Long getId()
+    public final Long getId()
     {
         return this.id;
     }
@@ -77,7 +77,7 @@ public abstract class BaseEntityObject
      * @return Дата и время создания сущности.
      * </return>
      **/
-    public final synchronized OffsetDateTime getCreatedAt()
+    public final OffsetDateTime getCreatedAt()
     {
         return this.createdAt;
     }
@@ -125,10 +125,12 @@ public abstract class BaseEntityObject
             return true;
         }
 
-        if (!(obj instanceof BaseEntityObject other))
+        if (obj == null || this.getClass() != obj.getClass())
         {
             return false;
         }
+
+        final BaseEntityObject other = (BaseEntityObject) obj;
 
         if (this.id == null || other.id == null)
         {

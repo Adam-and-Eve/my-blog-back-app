@@ -9,7 +9,7 @@ import java.util.List;
  * Основной контракт репозитория для работы с тегами на уровне базы данных.
  * </summary>
  **/
-public interface ITagRepository
+public interface TagRepository
 {
     // region Methods
 

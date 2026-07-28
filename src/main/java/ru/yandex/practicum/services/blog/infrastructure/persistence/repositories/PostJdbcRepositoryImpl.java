@@ -3,17 +3,14 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.application.queries.PostSearchCriteria;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostRowMapper;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostTagRowMapper;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * <summary>
@@ -21,7 +18,7 @@ import java.util.stream.Collectors;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class PostJdbcRepository implements IPostRepository
+public final class PostJdbcRepositoryImpl implements PostRepository
 {
     // region Fields
 
@@ -31,7 +28,7 @@ public final class PostJdbcRepository implements IPostRepository
 
     // region Constructors
 
-    public PostJdbcRepository(final NamedParameterJdbcTemplate jdbcTemplate)
+    public PostJdbcRepositoryImpl(final NamedParameterJdbcTemplate jdbcTemplate)
     {
         this.jdbcTemplate = jdbcTemplate;
     }

@@ -11,7 +11,7 @@ import java.util.Optional;
  * Основной контракт репозитория для работы с публикациями на уровне базы данных.
  * </summary>
  **/
-public interface IPostRepository
+public interface PostRepository
 {
     // region Properties
 

@@ -1,18 +1,16 @@
 package ru.yandex.practicum.services.blog.infrastructure.persistence.repositories;
 
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ITagRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostTagRowMapper;
+import ru.yandex.practicum.services.blog.infrastructure.persistence.projections.PostTagProjection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class TagJdbcRepository implements ITagRepository
+public final class TagJdbcRepositoryImpl implements TagRepository
 {
     // region Fields
 
@@ -32,7 +30,7 @@ public final class TagJdbcRepository implements ITagRepository
 
     // region Constructors
 
-    public TagJdbcRepository(final NamedParameterJdbcTemplate jdbcTemplate)
+    public TagJdbcRepositoryImpl(final NamedParameterJdbcTemplate jdbcTemplate)
     {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -46,6 +44,24 @@ public final class TagJdbcRepository implements ITagRepository
     // endregion
 
     // region Methods
+
+    /**
+     * <summary>
+     * Ищет идентификатор тега по его имени.
+     * </summary>
+     **/
+    private Long findTagIdByName(final String name)
+    {
+        var selectSqlQuery = "SELECT [Id] FROM [dbo].[Tags] WHERE [Name] = :name;";
+
+        var ids = jdbcTemplate.query(
+                selectSqlQuery,
+                new MapSqlParameterSource("name", name),
+                (rs, rowNum) -> rs.getLong("Id")
+        );
+
+        return ids.isEmpty() ? null : ids.getFirst();
+    }
 
     /**
      * <summary>
@@ -104,15 +120,24 @@ public final class TagJdbcRepository implements ITagRepository
         );
 
         /*
-         * Распределяем восстановленные сущности тегов по соответствующим постам.
+         * Группируем теги по Id постов, чтобы избежать затирания при вызове initializeTags.
          */
-        for (final var projection : projections)
+        final var tagsByPostId = projections.stream()
+                .collect(Collectors.groupingBy(
+                        PostTagProjection::getPostId,
+                        Collectors.mapping(PostTagProjection::getTag, Collectors.toList())
+                ));
+
+        /*
+         * Чистая гидратация: накатываем списки тегов на сущности.
+         */
+        for (final var entry : tagsByPostId.entrySet())
         {
-            final var post = postMap.get(projection.getPostId());
+            final var post = postMap.get(entry.getKey());
 
             if (post != null)
             {
-                post.addTag(projection.getTag());
+                post.initializeTags(entry.getValue());
             }
         }
     }
@@ -137,31 +162,38 @@ public final class TagJdbcRepository implements ITagRepository
 
         for (var tag : tags)
         {
+            if (tag == null)
+            {
+                continue;
+            }
+
             var trimmedName = tag.trim().toLowerCase();
 
-            var selectSqlQuery = "SELECT Id FROM [dbo].[Tags] WHERE [Name] = :name;";
-
-            var ids = jdbcTemplate.query(
-                selectSqlQuery,
-                new MapSqlParameterSource("name", trimmedName),
-                (rs, rowNum) -> rs.getLong("Id")
-            );
-
-            if (!ids.isEmpty())
+            if (trimmedName.isEmpty())
             {
-                result.add(ids.getFirst());
+                continue;
             }
-            else
+
+            var existingId = findTagIdByName(trimmedName);
+
+            if (existingId != null)
+            {
+                result.add(existingId);
+
+                continue;
+            }
+
+            try
             {
                 var insertSqlQuery = "INSERT INTO [dbo].[Tags] ([Name]) VALUES (:name);";
 
                 var keyHolder = new GeneratedKeyHolder();
 
                 jdbcTemplate.update(
-                    insertSqlQuery,
-                    new MapSqlParameterSource("name", trimmedName),
-                    keyHolder,
-                    new String[]{"Id"}
+                        insertSqlQuery,
+                        new MapSqlParameterSource("name", trimmedName),
+                        keyHolder,
+                        new String[]{"Id"}
                 );
 
                 var key = keyHolder.getKey();
@@ -169,6 +201,19 @@ public final class TagJdbcRepository implements ITagRepository
                 if (key != null)
                 {
                     result.add(key.longValue());
+                }
+            }
+            catch (Exception ex)
+            {
+                var concurrentId = findTagIdByName(trimmedName);
+
+                if (concurrentId != null)
+                {
+                    result.add(concurrentId);
+                }
+                else
+                {
+                    throw ex;
                 }
             }
         }

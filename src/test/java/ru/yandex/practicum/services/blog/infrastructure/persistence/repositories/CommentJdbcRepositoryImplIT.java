@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
-import ru.yandex.practicum.services.blog.core.application.interfaces.ICommentRepository;
-import ru.yandex.practicum.services.blog.core.application.interfaces.IPostRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepository;
+import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.CommentEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.CommentTextValueObject;
@@ -22,13 +22,13 @@ import java.util.ArrayList;
  * Проверяют CRUD-операции над комментариями, а также логику пакетного обогащения постов.
  * </summary>
  **/
-public final class CommentJdbcRepositoryIT extends BaseIntegrationTest
+public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
 {
     @Autowired
-    private ICommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Autowired
-    private IPostRepository postRepository;
+    private PostRepository postRepository;
 
     /**
      * <summary>

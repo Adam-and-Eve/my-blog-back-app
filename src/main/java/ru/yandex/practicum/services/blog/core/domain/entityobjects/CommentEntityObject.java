@@ -4,6 +4,7 @@ import ru.yandex.practicum.services.blog.core.domain.entityobjects.base.BaseEnti
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.CommentTextValueObject;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 /**
  * <summary>
@@ -12,7 +13,7 @@ import java.time.OffsetDateTime;
  **/
 public class CommentEntityObject extends BaseEntityObject
 {
-    // Fields
+    // region Fields
 
     /**
      * Объект-значение (Value Object), представляющий значение комментария.
@@ -27,7 +28,7 @@ public class CommentEntityObject extends BaseEntityObject
     {
         super();
 
-        this.text = text;
+        this.text = Objects.requireNonNull(text, "Объект сообщения комментария не может быть null.");
     }
 
     public CommentEntityObject(
@@ -39,7 +40,7 @@ public class CommentEntityObject extends BaseEntityObject
     {
         super(id, createdAt, updatedAt);
 
-        this.text = text;
+        this.text = Objects.requireNonNull(text, "Объект сообщения комментария не может быть null.");
     }
 
     // endregion
@@ -72,6 +73,8 @@ public class CommentEntityObject extends BaseEntityObject
      **/
     public final synchronized void changeText(final CommentTextValueObject text)
     {
+        Objects.requireNonNull(text, "Объект сообщения комментария не может быть null.");
+
         if (!this.text.equals(text))
         {
             this.text = text;

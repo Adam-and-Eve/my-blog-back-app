@@ -53,9 +53,9 @@ public final class PostEntityObject extends BaseEntityObject
     {
         super();
 
-        this.title = Objects.requireNonNull(title);
+        this.title = Objects.requireNonNull(title, "Объект заголовка публикации не может быть null.");
 
-        this.text = Objects.requireNonNull(text);
+        this.text = Objects.requireNonNull(text, "объект сообщения публикации не может быть null.");
 
         this.tags = new HashSet<>();
 
@@ -75,15 +75,15 @@ public final class PostEntityObject extends BaseEntityObject
     {
         super(id, createdAt, updatedAt);
 
-        this.title = Objects.requireNonNull(title);
+        this.title = Objects.requireNonNull(title, "Объект заголовка публикации не может быть null.");
 
-        this.text = Objects.requireNonNull(text);
+        this.text = Objects.requireNonNull(text, "Объект сообщения публикации не может быть null.");
 
         this.tags = new HashSet<>();
 
         this.comments = new HashSet<>();
 
-        this.likesCount = Objects.requireNonNull(likesCount);
+        this.likesCount = Objects.requireNonNull(likesCount, "Значением количества лайков публикации не может быть null.");
     }
 
     // endregion
@@ -183,6 +183,8 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void changeTitle(final PostTitleValueObject title)
     {
+        Objects.requireNonNull(title, "Объект заголовка публикации не может быть null.");
+
         if (!this.title.equals(title))
         {
             this.title = title;
@@ -200,6 +202,8 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void changeText(final PostTextValueObject text)
     {
+        Objects.requireNonNull(text, "Объект сообщения публикации не может быть null.");
+
         if (!this.text.equals(text))
         {
             this.text = text;
@@ -217,7 +221,7 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void addTag(final TagEntityObject tag)
     {
-        Objects.requireNonNull(tag);
+        Objects.requireNonNull(tag, "Объект тега публикации не может быть null.");
 
         if (tags.add(tag))
         {
@@ -234,12 +238,28 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void removeTag(final TagEntityObject tag)
     {
-        Objects.requireNonNull(tag);
+        Objects.requireNonNull(tag, "Объект тега публикации не может быть null.");
 
         if (tags.remove(tag))
         {
             super.markUpdatedAt();
         }
+    }
+
+    /**
+     * <summary>
+     * Инициализирует список тегов при загрузке из репозитория.
+     * Чистая гидратация без изменения метки времени сущности.
+     * </summary>
+     * @param tags Теги из базы данных сервиса.
+     **/
+    public synchronized void initializeTags(final Collection<TagEntityObject> tags)
+    {
+        Objects.requireNonNull(tags, "Перечисление объектов тегов публикации не может быть null.");
+
+        this.tags.clear();
+
+        this.tags.addAll(tags);
     }
 
     /**
@@ -251,7 +271,7 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void addComment(final CommentEntityObject comment)
     {
-        Objects.requireNonNull(comment);
+        Objects.requireNonNull(comment, "Объект комментария публикации не может быть null.");
 
         if (comments.add(comment))
         {
@@ -267,7 +287,7 @@ public final class PostEntityObject extends BaseEntityObject
      **/
     public final synchronized void initializeComments(final Collection<CommentEntityObject> comments)
     {
-        Objects.requireNonNull(comments);
+        Objects.requireNonNull(comments, "Перечисление объектов комментариев публикации не может быть null.");
 
         this.comments.clear();
 

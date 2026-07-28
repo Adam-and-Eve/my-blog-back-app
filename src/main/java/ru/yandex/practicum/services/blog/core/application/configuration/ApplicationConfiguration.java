@@ -3,7 +3,9 @@ package ru.yandex.practicum.services.blog.core.application.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.yandex.practicum.services.blog.core.application.interfaces.*;
-import ru.yandex.practicum.services.blog.core.application.services.PostService;
+import ru.yandex.practicum.services.blog.core.application.services.PostCommentServiceImpl;
+import ru.yandex.practicum.services.blog.core.application.services.PostImageServiceImpl;
+import ru.yandex.practicum.services.blog.core.application.services.PostServiceImpl;
 
 /**
  * <summary>
@@ -38,13 +40,40 @@ public class ApplicationConfiguration
      * @return Реализация сервиса постов.
      **/
     @Bean
-    public IPostService postService(
-            final IPostRepository postRepository,
-            final ITagRepository tagRepository,
-            final IImageRepository imageRepository,
-            final ICommentRepository commentRepository)
+    public PostService postService(
+            final PostRepository postRepository,
+            final TagRepository tagRepository,
+            final CommentRepository commentRepository)
     {
-        return new PostService(postRepository, tagRepository, imageRepository,  commentRepository);
+        return new PostServiceImpl(postRepository, tagRepository,  commentRepository);
+    }
+
+    /**
+     * <summary>
+     * Создает и регистрирует компонент сервиса комментариев публикаций.
+     * </summary>
+     * @return Реализация сервиса комментариев постов.
+     **/
+    @Bean
+    public PostCommentService postCommentService(
+            final PostRepository postRepository,
+            final CommentRepository commentRepository)
+    {
+        return new PostCommentServiceImpl(postRepository, commentRepository);
+    }
+
+    /**
+     * <summary>
+     * Создает и регистрирует компонент сервиса изображений публикаций.
+     * </summary>
+     * @return Реализация сервиса изображений публикаци.
+     **/
+    @Bean
+    public PostImageService postImageService(
+            final PostRepository postRepository,
+            final ImageRepository imageRepository)
+    {
+        return new PostImageServiceImpl(postRepository, imageRepository);
     }
 
     // endregion

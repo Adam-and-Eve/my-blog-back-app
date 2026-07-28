@@ -5,7 +5,7 @@ package ru.yandex.practicum.services.blog.core.application.interfaces;
  * Основной контракт репозитория для работы с изображениями на уровне базы данных.
  * </summary>
  **/
-public interface IImageRepository
+public interface ImageRepository
 {
     // region Methods
 
