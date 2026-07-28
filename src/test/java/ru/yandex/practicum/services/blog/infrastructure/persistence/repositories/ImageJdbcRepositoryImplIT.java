@@ -5,20 +5,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.yandex.practicum.services.blog.MyBlogBackAppApplicationTests;
 import ru.yandex.practicum.services.blog.core.application.interfaces.ImageRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
 
 /**
- * <summary>
  * Интеграционные тесты для проверки корректности работы репозитория изображений ImageJdbcRepository.
- * Проверяют механизмы сохранения, обновления (upsert) и чтения бинарных данных изображений публикаций.
- * </summary>
+ * Выполняются в общем изолированном контексте Spring Boot с использованием Testcontainers.
  **/
-public final class ImageJdbcRepositoryImplIT extends BaseIntegrationTest
+class ImageJdbcRepositoryImplIT extends MyBlogBackAppApplicationTests
 {
     @Autowired
     private ImageRepository imageRepository;

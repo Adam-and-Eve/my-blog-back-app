@@ -29,7 +29,7 @@ import java.util.Optional;
  * </summary>
  **/
 @ExtendWith(MockitoExtension.class)
-public final class PostCommentServiceImplTest
+class PostCommentServiceImplTest
 {
     @Mock
     private PostRepository postRepository;

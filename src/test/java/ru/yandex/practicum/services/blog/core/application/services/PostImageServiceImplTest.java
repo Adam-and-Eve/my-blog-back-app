@@ -25,7 +25,7 @@ import java.time.OffsetDateTime;
  * </summary>
  **/
 @ExtendWith(MockitoExtension.class)
-public final class PostImageServiceImplTest
+class PostImageServiceImplTest
 {
     @Mock
     private PostRepository postRepository;

@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Запускает встроенный сервлет-контейнер и включает автоконфигурацию.
  */
 @SpringBootApplication
-public class MyBlogBackAppApplication {
+public class MyBlogBackAppApplication
+{
 
 	public static void main(String[] args)
 	{

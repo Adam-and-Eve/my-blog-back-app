@@ -35,7 +35,7 @@ import java.util.Set;
  * </summary>
  **/
 @ExtendWith(MockitoExtension.class)
-public final class PostServiceImplTest
+class PostServiceImplTest
 {
     @Mock
     private PostRepository postRepository;

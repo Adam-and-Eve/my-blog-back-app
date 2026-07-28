@@ -15,7 +15,7 @@ import java.util.List;
  * Юнит-тесты для проверки доменной логики, инвариантов и управления состоянием агрегата PostEntityObject.
  * </summary>
  **/
-public final class PostEntityObjectTest
+class PostEntityObjectTest
 {
     /**
      * <summary>
