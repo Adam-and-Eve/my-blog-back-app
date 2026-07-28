@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
@@ -16,7 +15,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
-import ru.yandex.practicum.services.blog.presentation.rest.configuration.RestConfiguration;
 
 import java.util.List;
 
