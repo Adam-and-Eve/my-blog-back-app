@@ -1,21 +1,18 @@
-FROM gradle:9.6.1-jdk21 AS builder
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-COPY gradlew .
-COPY gradle ./gradle
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
 COPY src ./src
 
-RUN ./gradlew war -x test --no-configuration-cache
+RUN mvn clean package -DskipTests
 
-FROM tomcat:11.0-jdk21-temurin-noble
-WORKDIR /usr/local/tomcat
+FROM eclipse-temurin:21-jre-noble
+WORKDIR /app
 
-RUN rm -rf webapps/*
-
-COPY --from=builder /app/build/libs/*.war webapps/ROOT.war
+COPY --from=builder /app/target/my-blog-back-app-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
-CMD ["catalina.sh", "run"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

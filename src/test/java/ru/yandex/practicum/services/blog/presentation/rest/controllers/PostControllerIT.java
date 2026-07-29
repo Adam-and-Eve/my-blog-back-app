@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
@@ -12,11 +11,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import ru.yandex.practicum.services.blog.MyBlogBackAppApplication;
+import ru.yandex.practicum.services.blog.MyBlogBackAppApplicationTests;
 import tools.jackson.databind.ObjectMapper;
 
 import ru.yandex.practicum.services.blog.core.application.dtos.posts.*;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
-import ru.yandex.practicum.services.blog.presentation.rest.configuration.RestConfiguration;
 
 import java.util.List;
 
@@ -25,13 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * <summary>
  * Интеграционные тесты для проверки сквозной работы PostController -> PostService -> Repository.
- * Наследуется от BaseIntegrationTest для автоматического управления транзакциями (откат после каждого теста).
- * Переопределяет контекст до RestConfiguration для поднятия полного веб-слоя приложения.
  * </summary>
  **/
-@ContextConfiguration(classes = {RestConfiguration.class})
+@ContextConfiguration(classes = {MyBlogBackAppApplication.class})
 @WebAppConfiguration
-public final class PostControllerIT extends BaseIntegrationTest
+public final class PostControllerIT extends MyBlogBackAppApplicationTests
 {
     @Autowired
     private WebApplicationContext webApplicationContext;

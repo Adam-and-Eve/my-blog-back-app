@@ -9,7 +9,7 @@ import ru.yandex.practicum.services.blog.core.domain.valueobjects.TagNameObject;
  * Юнит-тесты для проверки доменной логики и мутаций состояния TagEntityObject.
  * </summary>
  **/
-public final class TagEntityObjectTest
+class TagEntityObjectTest
 {
     /**
      * <summary>

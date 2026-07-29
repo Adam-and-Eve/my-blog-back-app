@@ -3,7 +3,9 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
+import ru.yandex.practicum.services.blog.MyBlogBackAppApplicationTests;
 import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.CommentEntityObject;
@@ -11,18 +13,15 @@ import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObj
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.CommentTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 /**
- * <summary>
- * Интеграционные тесты для проверки корректности работы репозитория комментариев CommentJdbcRepository.
- * Проверяют CRUD-операции над комментариями, а также логику пакетного обогащения постов.
- * </summary>
+ * Интеграционные тесты для проверки корректности работы репозитория комментариев.
+ * Запускаются в кэшируемом контексте Spring Boot на базе Testcontainers.
  **/
-public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
+class CommentJdbcRepositoryImplIT extends MyBlogBackAppApplicationTests
 {
     @Autowired
     private CommentRepository commentRepository;
@@ -35,29 +34,21 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
      * Проверяет успешное создание нового комментария к публикации и генерацию его идентификатора.
      * </summary>
      **/
-    @Test
     void saveCommentShouldInsertRecordAndReturnGeneratedId()
     {
         var postId = createTestPost("Пост для комментария");
 
-        var comment = new CommentEntityObject(
-                new CommentTextValueObject("Текст нового комментария"));
+        var comment = new CommentEntityObject(new CommentTextValueObject("Текст нового комментария"));
 
         var savedCommentOptional = commentRepository.saveComment(comment, postId);
 
-        Assertions.assertTrue(
-            savedCommentOptional.isPresent(),
-            "Комментарий должен успешно сохраниться");
+        Assertions.assertTrue(savedCommentOptional.isPresent(), "Комментарий должен успешно сохраниться");
 
         var savedComment = savedCommentOptional.get();
 
-        Assertions.assertNotNull(
-            savedComment.getId(),
-            "База данных должна сгенерировать Id для комментария");
+        Assertions.assertNotNull(savedComment.getId(), "База данных должна сгенерировать Id для комментария");
 
-        Assertions.assertEquals(
-            comment.getText().getValue(),
-            savedComment.getText().getValue());
+        Assertions.assertEquals(comment.getText().getValue(), savedComment.getText().getValue());
     }
 
     /**
@@ -70,16 +61,10 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
     {
         var postId = createTestPost("Пост с несколькими комментариями");
 
-        var firstComment = new CommentEntityObject(
-                new CommentTextValueObject("Первый комментарий"));
+        var firstComment = new CommentEntityObject(new CommentTextValueObject("Первый комментарий"));
 
-        var secondComment = new CommentEntityObject(
-                new CommentTextValueObject("Второй комментарий"));
+        var secondComment = new CommentEntityObject(new CommentTextValueObject("Второй комментарий"));
 
-        /*
-         * Сдвигаем CreatedAt у второго комментария на час вперед через ReflectionTestUtils.
-         * Это гарантирует, что даже после округления в БД второй комментарий останется более свежим.
-         */
         var futureTime = OffsetDateTime.now().plusHours(1);
 
         ReflectionTestUtils.setField(secondComment, "createdAt", futureTime);
@@ -90,15 +75,9 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
 
         var comments = commentRepository.findCommentsByPostId(postId);
 
-        Assertions.assertEquals(
-            2,
-            comments.size(),
-            "Должно быть возвращено ровно 2 комментария");
+        Assertions.assertEquals(2, comments.size(), "Должно быть возвращено ровно 2 комментария");
 
-        Assertions.assertEquals(
-            "Второй комментарий",
-            comments.getFirst().getText().getValue(),
-            "Первым должен идти более свежий комментарий (ORDER BY CreatedAt DESC)");
+        Assertions.assertEquals("Второй комментарий", comments.getFirst().getText().getValue());
     }
 
     /**
@@ -111,22 +90,17 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
     {
         var postId = createTestPost("Пост для удаления комментария");
 
-        var comment = new CommentEntityObject(
-                new CommentTextValueObject("Комментарий под удаление"));
+        var comment = new CommentEntityObject(new CommentTextValueObject("Комментарий под удаление"));
 
         var savedComment = commentRepository.saveComment(comment, postId).orElseThrow();
 
         var isDeleted = commentRepository.deleteComment(savedComment.getId(), postId);
 
-        Assertions.assertTrue(
-            isDeleted,
-            "Метод удаления должен вернуть true");
+        Assertions.assertTrue(isDeleted, "Метод удаления должен вернуть true");
 
         var dbComments = commentRepository.findCommentsByPostId(postId);
 
-        Assertions.assertTrue(
-            dbComments.isEmpty(),
-            "После удаления список комментариев в БД должен быть пуст");
+        Assertions.assertTrue(dbComments.isEmpty(), "После удаления список комментариев в БД должен быть пуст");
     }
 
     /**
@@ -142,11 +116,9 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
 
         var secondPostId = createTestPost("Второй пост пачки");
 
-        var commentForFirstPost = new CommentEntityObject(
-                new CommentTextValueObject("Коммент к первому"));
+        var commentForFirstPost = new CommentEntityObject(new CommentTextValueObject("Коммент к первому"));
 
-        var commentForSecondPost = new CommentEntityObject(
-                new CommentTextValueObject("Коммент ко второму"));
+        var commentForSecondPost = new CommentEntityObject(new CommentTextValueObject("Коммент ко второму"));
 
         commentRepository.saveComment(commentForFirstPost, firstPostId).orElseThrow();
 
@@ -164,27 +136,13 @@ public final class CommentJdbcRepositoryImplIT extends BaseIntegrationTest
 
         commentRepository.enrichPostsWithComments(postsList);
 
-        Assertions.assertEquals(
-            1,
-            firstPostEntity.getComments().size(),
-            "Первый пост должен быть обогащен одним комментарием");
+        Assertions.assertEquals(1, firstPostEntity.getComments().size());
 
-        var firstComment = firstPostEntity.getComments().iterator().next();
+        Assertions.assertEquals("Коммент к первому", firstPostEntity.getComments().iterator().next().getText().getValue());
 
-        Assertions.assertEquals(
-            "Коммент к первому",
-            firstComment.getText().getValue());
+        Assertions.assertEquals(1, secondPostEntity.getComments().size());
 
-        Assertions.assertEquals(
-            1,
-            secondPostEntity.getComments().size(),
-            "Второй пост должен быть обогащен одним комментарием");
-
-        var secondComment = secondPostEntity.getComments().iterator().next();
-
-        Assertions.assertEquals(
-            "Коммент ко второму",
-            secondComment.getText().getValue());
+        Assertions.assertEquals("Коммент ко второму", secondPostEntity.getComments().iterator().next().getText().getValue());
     }
 
     /**

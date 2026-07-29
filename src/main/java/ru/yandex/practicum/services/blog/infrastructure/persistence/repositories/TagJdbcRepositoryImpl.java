@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.infrastructure.persistence.mappers.PostTagRowMapper;
@@ -20,7 +21,8 @@ import java.util.stream.Collectors;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class TagJdbcRepositoryImpl implements TagRepository
+@Repository
+public class TagJdbcRepositoryImpl implements TagRepository
 {
     // region Fields
 

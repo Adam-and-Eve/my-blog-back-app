@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
  * Юнит-тесты для проверки доменной логики и мутаций состояния CommentEntityObject.
  * </summary>
  **/
-public final class CommentEntityObjectTest
+class CommentEntityObjectTest
 {
     /**
      * <summary>

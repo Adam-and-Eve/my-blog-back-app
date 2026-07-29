@@ -6,23 +6,23 @@
 
 ## 🚀 О проекте
 
-Бэкенд-приложение для платформы блога, разработанное на **Java 21** с использованием **Spring Framework**.
+Бэкенд-приложение для платформы блога, разработанное на **Java 21** с использованием **Spring Boot Framework**.
 
 Проект следует принципам **Clean Architecture** / многослойной архитектуры:
 - **Presentation** → **Application** → **Domain** → **Infrastructure**
 
-Приложение собирается в **WAR**-архив и деплоится в сервлет-контейнер (Tomcat / Jetty).
+Приложение упаковывается в единый **Executable JAR**-архив и запускается во встроенном сервлет-контейнере **Tomcat**.
 
 ---
 
 ## 🛠 Технологический стек
 
 - **Язык:** Java 21
-- **Фреймворк:** Spring Framework (Web MVC, JDBC)
-- **Сборка:** Gradle (Kotlin DSL)
+- **Фреймворк:** Spring Boot Framework (Starter Web Starter Data, JDBC, MVC)
+- **Сборка:** Maven
 - **База данных:** Microsoft SQL Server
-- **Деплой:** WAR + Tomcat (Docker)
-- **Тестирование:** JUnit 5, Spring Test, Mockito
+- **Деплой:** Executable JAR (Docker-контейнеризация с разделением слоёв сборки)
+- **Тестирование:** JUnit 5, Spring Boot Test, Testcontainers (MS SQL Server), Mockito
 - **Дополнительно:** Jackson
 
 ---
@@ -47,14 +47,12 @@ my-blog-back-app/
 │   │   │       └── configuration/
 │   │   └── resources/
 │   │       ├── database/schema.sql
-│   │       ├── application.properties
-│   │       └── WEB-INF/web.xml
+│   │       └── application.properties
 │   └── test/java/...                     # Unit + Integration тесты
-├── build.gradle.kts
+├── pom.xml
 ├── Dockerfile
 ├── application.properties.env
 ├── .gitignore
-└── gradle.properties
 ```
 
 ---
@@ -64,10 +62,10 @@ my-blog-back-app/
 ### Переменные окружения (application.properties.env)
 
 ```bash
-blog.datasource.driver=class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
-blog.datasource.url=jdbc:sqlserver://host.docker.internal:1433;databaseName=BlogDb;encrypt=true;trustServerCertificate=true;
-blog.datasource.username=login
-blog.datasource.password=password
+spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+spring.datasource.url=jdbc:sqlserver://host.docker.internal:1433;databaseName=BlogDb;encrypt=true;trustServerCertificate=true;
+spring.datasource.username=
+spring.datasource.password=
 ```
 
 ### Запуск через Docker
@@ -82,18 +80,18 @@ docker run --name my-blog-back-service -p 8080:8080 --env-file application.prope
 
 ---
 
-## 🏗 Сборка проекта
+## 🏗 Локальная сборка и запуск проекта
 
-**# Сборка WAR-файла**
+**# Сборка исполняемого JAR-файла**
 
 ```bash
-./gradlew war
+./mvnw clean package
 ```
 
-**# Запуск через Gretty (Jetty)**
+**# Локальный запуск бэкенда (без Docker)**
 
 ```bash
-./gradlew appRun
+java -jar target/my-blog-back-app-0.0.1-SNAPSHOT.jar
 ```
 
 ---
@@ -134,9 +132,11 @@ PostController (/api/posts)
 ## 🧪 Тестирование
 
 ```bash
-./gradlew test
+./mvnw test
 ```
 
+- `Unit-тесты Value Objects`
+- `Unit-тесты Entity Objects`
 - `Unit-тесты сервисов`
 - `Integration-тесты репозиториев (*IT)`
 - `Integration-тесты контроллеров`
@@ -147,9 +147,8 @@ PostController (/api/posts)
 
 - **Чёткое разделение по DDD (Entity Objects, Value Objects)**
 - **Использование Projection для оптимизации запросов**
-- **RowMapper для работы с Spring JDBC**
+- **RowMapper для работы с Data JDBC**
 - **Интерфейсы для всех важных компонентов**
-- **Центральная конфигурация через RestConfiguration**
 - **Поддержка multipart-запросов для изображений**
 
 ---
@@ -158,8 +157,8 @@ PostController (/api/posts)
 
 - **Создайте новую ветку: git checkout -b feature/название**
 - **Внесите изменения**
-- **Запустите тесты: ./gradlew test** 
-- **Соберите проект: ./gradlew war**
+- **Запустите тесты: ./mvnw test** 
+- **Соберите проект: ./mvnw clean package**
 - **Создайте Pull Request**
 
 ---
@@ -167,6 +166,5 @@ PostController (/api/posts)
 ## ⚠️ Ответы на популярные вопросы
 
 - **Не подключается к БД в Docker → используйте host.docker.internal**
-- **Gretty не запускается → проверьте, свободен ли порт 8080**
-- **Проблемы со сборкой → выполните ./gradlew clean war**
+- **Проблемы со сборкой → выполните ./mvnw clean package**
 - **SQL Server → убедитесь, что база BlogDb существует и у пользователя есть права**

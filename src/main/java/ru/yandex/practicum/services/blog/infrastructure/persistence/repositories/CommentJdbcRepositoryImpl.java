@@ -2,6 +2,7 @@ package ru.yandex.practicum.services.blog.infrastructure.persistence.repositorie
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.CommentRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.CommentEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
@@ -20,7 +21,8 @@ import java.util.stream.Collectors;
  * Отвечает за маппинг доменных сущностей в реляционную модель базы данных.
  * </summary>
  **/
-public final class CommentJdbcRepositoryImpl implements CommentRepository
+@Repository
+public class CommentJdbcRepositoryImpl implements CommentRepository
 {
     // region Fields
 

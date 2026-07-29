@@ -9,7 +9,7 @@ import ru.yandex.practicum.services.blog.core.domain.exceptions.ValueObjectIsInv
  * Юнит-тесты для проверки доменных правил и инвариантов PostTitleValueObject.
  * </summary>
  **/
-public final class PostTitleValueObjectTest
+class PostTitleValueObjectTest
 {
     /**
      * <summary>

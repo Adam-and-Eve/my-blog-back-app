@@ -5,23 +5,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.yandex.practicum.services.blog.MyBlogBackAppApplicationTests;
 import ru.yandex.practicum.services.blog.core.application.interfaces.PostRepository;
 import ru.yandex.practicum.services.blog.core.application.interfaces.TagRepository;
 import ru.yandex.practicum.services.blog.core.domain.entityobjects.PostEntityObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTextValueObject;
 import ru.yandex.practicum.services.blog.core.domain.valueobjects.PostTitleValueObject;
-import ru.yandex.practicum.services.blog.infrastructure.persistence.BaseIntegrationTest;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <summary>
- * Интеграционные тесты для проверки корректности работы репозитория тегов TagJdbcRepository.
- * Проверяют пакетные операции, механизмы связывания тегов с публикациями и очистку сиротских записей.
- * </summary>
+ * Интеграционные тесты для проверки корректности работы репозитория публикаций TagJdbcRepository.
+ * Выполняются в общем изолированном контексте Spring Boot с использованием Testcontainers.
  **/
-public final class TagJdbcRepositoryImplIT extends BaseIntegrationTest
+class TagJdbcRepositoryImplIT extends MyBlogBackAppApplicationTests
 {
     @Autowired
     private TagRepository tagRepository;
